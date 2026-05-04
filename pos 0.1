@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal OS — Command Center</title>
+<style>
+:root {
+  --bg:#0a0a0f;--bg2:#111118;--bg3:#1a1a24;--card:#16161f;--card2:#1e1e2a;
+  --border:#2a2a3a;--accent:#4f8ef7;--accent2:#7c3aed;--green:#22c55e;
+  --amber:#f59e0b;--red:#ef4444;--text:#e8e8f0;--text2:#9999b3;--text3:#5a5a7a;
+  --gold:#f0b429;--radius:10px;--shadow:0 4px 20px rgba(0,0,0,.4);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.5;min-height:100vh;}
+button{cursor:pointer;border:none;outline:none;font-family:inherit;}
+input,textarea,select{font-family:inherit;font-size:14px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px 10px;width:100%;}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);outline:none;}
+textarea{resize:vertical;min-height:70px;}
+h2{font-size:16px;font-weight:600;}
+h3{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;}
+
+/* Layout */
+.app-shell{display:flex;min-height:100vh;}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);padding:20px 0;display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;overflow-y:auto;}
+.main{margin-left:220px;flex:1;padding:24px;max-width:1200px;}
+.sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.sidebar-logo .logo-text{font-size:15px;font-weight:700;color:var(--accent);}
+.sidebar-logo .logo-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--text2);cursor:pointer;transition:.15s;font-size:13px;border-left:3px solid transparent;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:var(--bg3);color:var(--accent);border-left-color:var(--accent);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-section{padding:8px 20px 4px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-top:8px;}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px;}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+
+/* Progress */
+.progress-bar{background:var(--bg3);border-radius:20px;height:8px;overflow:hidden;margin:6px 0;}
+.progress-fill{height:100%;border-radius:20px;transition:.4s;}
+.fill-green{background:var(--green);}.fill-amber{background:var(--amber);}.fill-red{background:var(--red);}.fill-blue{background:var(--accent);}.fill-purple{background:var(--accent2);}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-green{background:rgba(34,197,94,.15);color:var(--green);}
+.badge-amber{background:rgba(245,158,11,.15);color:var(--amber);}
+.badge-red{background:rgba(239,68,68,.15);color:var(--red);}
+.badge-blue{background:rgba(79,142,247,.15);color:var(--accent);}
+.badge-purple{background:rgba(124,58,237,.15);color:var(--accent2);}
+.badge-gold{background:rgba(240,180,41,.15);color:var(--gold);}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;font-size:13px;font-weight:600;transition:.15s;}
+.btn-primary{background:var(--accent);color:#fff;}.btn-primary:hover{background:#3a7de0;}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}.btn-ghost:hover{color:var(--text);}
+.btn-green{background:var(--green);color:#fff;}.btn-green:hover{background:#16a34a;}
+.btn-red{background:var(--red);color:#fff;}
+.btn-amber{background:var(--amber);color:#000;}
+.btn-purple{background:var(--accent2);color:#fff;}
+.btn-gold{background:var(--gold);color:#000;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+
+/* Tasks */
+.task-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;}
+.task-item.overdue{border-left:3px solid var(--red);}
+.task-item.urgent{border-left:3px solid var(--amber);}
+.task-item.done{opacity:.5;}
+.task-check{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:.15s;}
+.task-check.checked{background:var(--green);border-color:var(--green);color:#fff;}
+.task-body{flex:1;}
+.task-title{font-size:14px;font-weight:500;}
+.task-meta{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;}
+.task-meta span{font-size:11px;color:var(--text3);}
+
+/* Pages */
+.page{display:none;}.page.active{display:block;}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--bg2);border-radius:8px;padding:4px;}
+.tab{padding:7px 14px;border-radius:6px;font-size:13px;color:var(--text2);cursor:pointer;transition:.15s;}
+.tab.active{background:var(--card);color:var(--text);font-weight:600;}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;}
+
+/* Feedback loop specific */
+.feedback-block{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;}
+.feedback-block.fajr-block{border-left:3px solid var(--accent2);}
+.feedback-block.asr-block{border-left:3px solid var(--amber);}
+.feedback-block.bed-block{border-left:3px solid var(--red);}
+.loop-score-row{display:flex;align-items:center;gap:10px;margin:6px 0;}
+.loop-score-row label{flex:1;font-size:13px;color:var(--text2);}
+.score-dots{display:flex;gap:4px;}
+.score-dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:.15s;color:var(--text3);}
+.score-dot.active-1,.score-dot.active-2{background:var(--red);border-color:var(--red);color:#fff;}
+.score-dot.active-3,.score-dot.active-4{background:var(--amber);border-color:var(--amber);color:#000;}
+.score-dot.active-5{background:var(--green);border-color:var(--green);color:#fff;}
+.trend-bar{display:flex;align-items:flex-end;gap:3px;height:50px;}
+.trend-col{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.trend-seg{width:20px;border-radius:3px 3px 0 0;transition:.3s;}
+.trend-lbl{font-size:9px;color:var(--text3);}
+
+/* Quran tracker */
+.quran-heatmap{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;}
+.heat-cell{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;cursor:default;transition:.2s;}
+.heat-0{background:var(--bg3);color:var(--text3);}
+.heat-1{background:rgba(124,58,237,.3);color:var(--accent2);}
+.heat-2{background:rgba(124,58,237,.55);color:#fff;}
+.heat-3{background:var(--accent2);color:#fff;}
+
+/* Tahajjud */
+.tahajjud-ring{width:90px;height:90px;border-radius:50%;border:4px solid var(--border);display:flex;align-items:center;justify-content:center;flex-direction:column;margin:0 auto;}
+.tahajjud-ring.done-ring{border-color:var(--accent2);box-shadow:0 0 20px rgba(124,58,237,.3);}
+.tahajjud-num{font-size:22px;font-weight:800;}
+.tahajjud-lbl{font-size:10px;color:var(--text3);}
+
+/* Misc */
+.stat-tile{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;}
+.stat-tile .num{font-size:28px;font-weight:800;}
+.stat-tile .lbl{font-size:11px;color:var(--text3);margin-top:2px;}
+.role-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.role-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.role-icon{font-size:22px;margin-right:8px;}
+.mode-strip{border-radius:8px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.mode-ideal{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);}
+.mode-standard{background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.3);}
+.mode-stoploss{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);}
+.timer-display{font-size:48px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);text-align:center;padding:20px 0;}
+.capture-item{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+.prompt-box{background:var(--bg3);border-left:3px solid var(--accent);padding:10px 14px;border-radius:0 7px 7px 0;margin:8px 0;}
+.prompt-box p{color:var(--text);font-style:italic;font-size:13px;}
+.points-display{display:flex;align-items:center;gap:8px;}
+.points-num{font-size:20px;font-weight:800;color:var(--gold);}
+.section-title{font-size:18px;font-weight:700;margin-bottom:4px;}
+.section-sub{color:var(--text2);font-size:13px;margin-bottom:20px;}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+.form-group{margin-bottom:12px;}
+.form-label{font-size:12px;color:var(--text2);margin-bottom:4px;display:block;font-weight:600;}
+.row{display:flex;}.gap{gap:8px;}.mt4{margin-top:4px;}.mt8{margin-top:8px;}.mt12{margin-top:12px;}.mt16{margin-top:16px;}.mb8{margin-bottom:8px;}.mb16{margin-bottom:16px;}
+.muted{color:var(--text3);}.small{font-size:12px;}.italic{font-style:italic;}.bold{font-weight:700;}
+.green{color:var(--green);}.red{color:var(--red);}.amber{color:var(--amber);}.gold{color:var(--gold);}
+.reset-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 6px;}
+.reset-btn:hover{color:var(--red);}
+.today-mode-btn{padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;}
+.flex-wrap{flex-wrap:wrap;}
+.w100{width:100%;}
+
+/* Notification dot */
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);margin-left:auto;}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-220px);transition:.3s;}.sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;padding:16px;}.grid2,.grid3{grid-template-columns:1fr;}
+  .mobile-menu{display:flex!important;}
+}
+.mobile-menu{display:none;position:fixed;top:12px;left:12px;z-index:150;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:18px;}
+@media print{.sidebar,.btn,.mobile-menu{display:none!important;}.main{margin:0;padding:0;}body{background:#fff;color:#000;}.card{border:1px solid #ccc;break-inside:avoid;}}
+</style>
+</head>
+<body>
+
+<div class="mobile-menu" onclick="toggleSidebar()" id="mobileMenu">☰</div>
+
+<div class="app-shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">⚡ Personal OS</div>
+    <div class="logo-sub">Command Center v2</div>
+    <div class="mt8 points-display"><span>🏆</span><span class="points-num" id="sidebarPoints">0</span><span class="muted small">pts</span></div>
+  </div>
+  <div class="sidebar-section">Daily</div>
+  <div class="nav-item active" onclick="showPage('today')" data-page="today"><span class="nav-icon">🎯</span>Today</div>
+  <div class="nav-item" onclick="showPage('feedback')" data-page="feedback"><span class="nav-icon">🔄</span>Feedback Loops<span class="nav-dot" id="feedbackDot" style="display:none;"></span></div>
+  <div class="nav-item" onclick="showPage('deen')" data-page="deen"><span class="nav-icon">🕌</span>Deen Tracker</div>
+  <div class="nav-item" onclick="showPage('reflect')" data-page="reflect"><span class="nav-icon">🌙</span>Reflection</div>
+  <div class="nav-item" onclick="showPage('capture')" data-page="capture"><span class="nav-icon">⚡</span>Quick Capture</div>
+  <div class="sidebar-section">System</div>
+  <div class="nav-item" onclick="showPage('weekly')" data-page="weekly"><span class="nav-icon">📅</span>Weekly OS</div>
+  <div class="nav-item" onclick="showPage('roles')" data-page="roles"><span class="nav-icon">👤</span>Roles</div>
+  <div class="nav-item" onclick="showPage('nonneg')" data-page="nonneg"><span class="nav-icon">🛡️</span>Non-Negotiables</div>
+  <div class="nav-item" onclick="showPage('tasks')" data-page="tasks"><span class="nav-icon">✅</span>Task System</div>
+  <div class="sidebar-section">Progress</div>
+  <div class="nav-item" onclick="showPage('analytics')" data-page="analytics"><span class="nav-icon">📊</span>Analytics</div>
+  <div class="nav-item" onclick="showPage('reset')" data-page="reset"><span class="nav-icon">🔄</span>Re-entry</div>
+  <div class="sidebar-section">Settings</div>
+  <div class="nav-item" onclick="showPage('settings')" data-page="settings"><span class="nav-icon">⚙️</span>Settings</div>
+  <div style="padding:20px;margin-top:auto;">
+    <div style="font-size:11px;color:var(--text3);line-height:1.8;">
+      <div id="sidebarDate"></div>
+      <div id="sidebarStreak"></div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ===== TODAY ===== -->
+<div class="page active" id="page-today">
+  <div class="row" style="justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+    <div>
+      <div class="section-title" id="todayTitle">Today</div>
+      <div class="section-sub" id="todayDate"></div>
+    </div>
+    <div class="row gap flex-wrap">
+      <div class="today-mode-btn" id="modeBtn" onclick="cycleDayMode()" style="background:rgba(34,197,94,.15);color:var(--green);">🟢 Ideal Day</div>
+      <button class="btn btn-primary btn-sm" onclick="showPage('tasks')">⚡ Start Now</button>
+      <button class="btn btn-ghost btn-sm" onclick="showPage('reset')">🔄 Reset</button>
+    </div>
+  </div>
+
+  <div class="prompt-box mb16"><p id="dailyPromptText"></p></div>
+
+  <div class="grid3 mb16">
+    <div class="stat-tile"><div class="num" id="dailyScoreDisplay">0%</div><div class="lbl">Today's Score</div><div class="progress-bar mt4"><div class="progress-fill fill-blue" id="dailyScoreBar" style="width:0%"></div></div></div>
+    <div class="stat-tile"><div class="num" id="streakDisplay">0🔥</div><div class="lbl">Day Streak</div></div>
+    <div class="stat-tile"><div class="num gold" id="pointsDisplay">0</div><div class="lbl">🏆 Points</div></div>
+  </div>
+
+  <!-- Feedback Loop Reminder -->
+  <div id="feedbackReminder" class="card" style="display:none;border-left:3px solid var(--amber);">
+    <div class="card-header"><h2>🔄 Feedback Loop Due</h2><button class="btn btn-amber btn-sm" id="feedbackReminderBtn" onclick="openFeedbackLoop()">Open Now</button></div>
+    <p id="feedbackReminderText" class="muted small"></p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2>🎯 Top 3 Priorities Today</h2><button class="btn btn-ghost btn-sm" onclick="savePriorities()">Save</button></div>
+    <div class="form-group"><label class="form-label">Priority 1</label><input type="text" id="p1" placeholder="Most important task today..."></div>
+    <div class="form-group"><label class="form-label">Priority 2</label><input type="text" id="p2" placeholder="Second priority..."></div>
+    <div class="form-group"><label class="form-label">Priority 3</label><input type="text" id="p3" placeholder="Third priority..."></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2>🛡️ Non-Negotiables</h2><span class="small muted" id="nnScoreToday">0/0 done</span></div>
+    <div id="todayNNList"></div>
+  </div>
+
+  <div id="overdueSection" class="card" style="display:none;">
+    <div class="card-header"><h2>🚨 Overdue — Face These First</h2></div>
+    <div id="overdueList"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2>⏳ Deadlines</h2><button class="btn btn-ghost btn-sm" onclick="addDeadline()">+ Add</button></div>
+    <div id="deadlineList"></div>
+    <div class="muted small mt8 italic" id="deadlineEmpty">No deadlines set.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2>🔋 Minimum Viable Day</h2><span class="badge badge-amber">Low capacity</span></div>
+    <div class="mode-strip mode-stoploss"><span>🛑</span><div><div class="bold small">If today is hard — do ONLY these:</div><div class="muted small" id="mvdList">Fajr · 1 page Quran · 1 work task · Acknowledge family</div></div></div>
+    <button class="btn btn-amber btn-sm mt8" onclick="activateStopLoss()">Activate Stop-Loss Mode</button>
+  </div>
+</div>
+
+<!-- ===== FEEDBACK LOOPS ===== -->
+<div class="page" id="page-feedback">
+  <div class="section-title">🔄 Feedback Loops</div>
+  <div class="section-sub">Three check-ins daily — after Fajr, after Asr, and before bed. Honest. Fast. Formative.</div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchFeedbackTab(this,'fajr-loop')">🌅 After Fajr</div>
+    <div class="tab" onclick="switchFeedbackTab(this,'asr-loop')">🌆 After Asr</div>
+    <div class="tab" onclick="switchFeedbackTab(this,'bed-loop')">🌙 Before Bed</div>
+    <div class="tab" onclick="switchFeedbackTab(this,'loop-history')">📈 History</div>
+  </div>
+
+  <!-- FAJR LOOP -->
+  <div id="tab-fajr-loop">
+    <div class="prompt-box mb16"><p>"After Fajr — before the dunya enters. Rate where you are. Set the tone for the day."</p></div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>🌅 Fajr Feedback Loop</h2>
+        <span class="small muted" id="fajrLoopDate"></span>
+      </div>
+      <div class="feedback-block fajr-block">
+        <h3 class="mb8">Rate yourself right now (1–5)</h3>
+        <div class="loop-score-row"><label>🕌 Fajr — was it on time?</label><div class="score-dots" id="fd-fajr"></div></div>
+        <div class="loop-score-row"><label>😴 Sleep quality last night</label><div class="score-dots" id="fd-sleep"></div></div>
+        <div class="loop-score-row"><label>🧠 Mental clarity right now</label><div class="score-dots" id="fd-clarity"></div></div>
+        <div class="loop-score-row"><label>💪 Energy level</label><div class="score-dots" id="fd-energy"></div></div>
+        <div class="loop-score-row"><label>🤲 Connected to Allah right now</label><div class="score-dots" id="fd-iman"></div></div>
+      </div>
+      <div class="form-group mt12">
+        <label class="form-label">One thing I must not let slip today</label>
+        <input type="text" id="fajr-mustdo" placeholder="Name the thing you have been avoiding...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">My intention for today (one sentence)</label>
+        <input type="text" id="fajr-intention" placeholder="Today I am a man who...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">What do I need from Allah today?</label>
+        <textarea id="fajr-dua" placeholder="Write your dua for the day..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Quran read after Fajr?</label>
+        <div class="row gap mt4">
+          <select id="fajr-quran-amount" style="flex:1;">
+            <option value="0">Not yet</option>
+            <option value="1">Few ayaat</option>
+            <option value="2">Half a page</option>
+            <option value="3">1+ pages</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-purple w100 mt8" onclick="saveFajrLoop()">✅ Submit Fajr Loop</button>
+      <div class="small muted mt8 italic" id="fajrLoopStatus"></div>
+    </div>
+  </div>
+
+  <!-- ASR LOOP -->
+  <div id="tab-asr-loop" style="display:none;">
+    <div class="prompt-box mb16"><p>"After Asr — the day is not over but the best hours have passed. How did you use them?"</p></div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>🌆 Asr Feedback Loop</h2>
+        <span class="small muted" id="asrLoopDate"></span>
+      </div>
+      <div class="feedback-block asr-block">
+        <h3 class="mb8">Rate the first half of your day (1–5)</h3>
+        <div class="loop-score-row"><label>✅ Priorities — moved on today?</label><div class="score-dots" id="ad-priorities"></div></div>
+        <div class="loop-score-row"><label>🛡️ Non-negotiables — held?</label><div class="score-dots" id="ad-nonneg"></div></div>
+        <div class="loop-score-row"><label>⚡ Focus — deep work or scattered?</label><div class="score-dots" id="ad-focus"></div></div>
+        <div class="loop-score-row"><label>👨‍👧 Family — showed up for them?</label><div class="score-dots" id="ad-family"></div></div>
+        <div class="loop-score-row"><label>🧠 Avoidance — did I face or flee?</label><div class="score-dots" id="ad-avoidance"></div></div>
+      </div>
+      <div class="form-group mt12">
+        <label class="form-label">What happened between Fajr and Asr?</label>
+        <textarea id="asr-happened" placeholder="Quick honest summary — what actually got done?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">What am I avoiding right now?</label>
+        <input type="text" id="asr-avoiding" placeholder="Name it. Don't skip this.">
+      </div>
+      <div class="form-group">
+        <label class="form-label">What is the ONE thing to do before Maghrib?</label>
+        <input type="text" id="asr-maghrib" placeholder="The most important thing left today...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Energy right now</label>
+        <select id="asr-energy">
+          <option>High — in flow</option>
+          <option>Medium — functional</option>
+          <option>Low — surviving</option>
+          <option>Crashed — stop-loss needed</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Asr prayed?</label>
+        <select id="asr-prayer">
+          <option value="1">Yes — on time</option>
+          <option value="2">Yes — late</option>
+          <option value="0">Not yet</option>
+        </select>
+      </div>
+      <button class="btn btn-amber w100 mt8" onclick="saveAsrLoop()">✅ Submit Asr Loop</button>
+      <div class="small muted mt8 italic" id="asrLoopStatus"></div>
+    </div>
+  </div>
+
+  <!-- BED LOOP -->
+  <div id="tab-bed-loop" style="display:none;">
+    <div class="prompt-box mb16"><p>"Before you sleep — close the day properly. Gratitude. Account. Forgiveness. Rest."</p></div>
+    <div class="card">
+      <div class="card-header">
+        <h2>🌙 Before Bed Feedback Loop</h2>
+        <span class="small muted" id="bedLoopDate"></span>
+      </div>
+      <div class="feedback-block bed-block">
+        <h3 class="mb8">Rate your day (1–5)</h3>
+        <div class="loop-score-row"><label>🎯 Did I hit my top priority today?</label><div class="score-dots" id="bd-priority"></div></div>
+        <div class="loop-score-row"><label>🛡️ Non-negotiables — held today?</label><div class="score-dots" id="bd-nonneg"></div></div>
+        <div class="loop-score-row"><label>👨‍👧 Showed up for family today?</label><div class="score-dots" id="bd-family"></div></div>
+        <div class="loop-score-row"><label>🧠 Mental state ending the day</label><div class="score-dots" id="bd-mental"></div></div>
+        <div class="loop-score-row"><label>🤲 Gratitude — did I feel it today?</label><div class="score-dots" id="bd-gratitude"></div></div>
+      </div>
+      <div class="form-group mt12">
+        <label class="form-label">What was today's biggest win?</label>
+        <input type="text" id="bed-win" placeholder="Even if small — name it. It counts.">
+      </div>
+      <div class="form-group">
+        <label class="form-label">What am I carrying into tomorrow that I shouldn't be?</label>
+        <textarea id="bed-carrying" placeholder="Unresolved tension, avoidance, worry — name it and lay it down."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">What will I do differently tomorrow?</label>
+        <input type="text" id="bed-tomorrow" placeholder="One concrete change for tomorrow...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Three things I am grateful for today</label>
+        <textarea id="bed-gratitude-text" placeholder="1. &#10;2. &#10;3."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Isha prayed?</label>
+        <select id="bed-isha">
+          <option value="1">Yes — on time</option>
+          <option value="2">Yes — late</option>
+          <option value="0">Not yet — will pray now</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone away? (No doom scroll before sleep)</label>
+        <select id="bed-phone">
+          <option value="1">Yes — screen-free</option>
+          <option value="0.5">Mostly — limited it</option>
+          <option value="0">No — need to fix this</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Intended sleep time</label>
+        <input type="time" id="bed-sleeptime" value="22:30">
+      </div>
+      <button class="btn btn-red w100 mt8" onclick="saveBedLoop()" style="background:var(--accent2);">🌙 Submit Before Bed Loop</button>
+      <div class="small muted mt8 italic" id="bedLoopStatus"></div>
+    </div>
+  </div>
+
+  <!-- LOOP HISTORY -->
+  <div id="tab-loop-history" style="display:none;">
+    <div class="card">
+      <h2 class="mb16">📈 7-Day Feedback Trends</h2>
+      <h3 class="mb8">Fajr Loop — Average Scores</h3>
+      <div id="fajrTrendChart" class="trend-bar mb16"></div>
+      <h3 class="mb8">Asr Loop — Average Scores</h3>
+      <div id="asrTrendChart" class="trend-bar mb16"></div>
+      <h3 class="mb8">Before Bed Loop — Average Scores</h3>
+      <div id="bedTrendChart" class="trend-bar mb16"></div>
+    </div>
+    <div class="card">
+      <h2 class="mb16">📋 Recent Loop Entries</h2>
+      <div id="loopHistoryList"><div class="muted small italic">No entries yet.</div></div>
+    </div>
+    <div class="card">
+      <h2 class="mb16">🔍 Pattern Recognition</h2>
+      <div id="patternInsights"><div class="muted small italic">Complete 3+ days of loops to see patterns.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DEEN TRACKER ===== -->
+<div class="page" id="page-deen">
+  <div class="section-title">🕌 Deen Tracker</div>
+  <div class="section-sub">Tahajjud. Quran. Prayers. The foundation everything else is built on.</div>
+
+  <!-- Tahajjud -->
+  <div class="card">
+    <div class="card-header"><h2>🌙 Tahajjud Tracker</h2><span class="badge badge-purple">Night Prayer</span></div>
+    <div class="grid3 mb16">
+      <div class="text-center">
+        <div class="tahajjud-ring" id="tahajjudRing">
+          <div class="tahajjud-num" id="tahajjudStreak">0</div>
+          <div class="tahajjud-lbl">streak 🌙</div>
+        </div>
+        <div class="small muted mt8">Current Streak</div>
+      </div>
+      <div class="text-center">
+        <div class="tahajjud-ring">
+          <div class="tahajjud-num" id="tahajjudTotal">0</div>
+          <div class="tahajjud-lbl">total</div>
+        </div>
+        <div class="small muted mt8">Days Prayed</div>
+      </div>
+      <div class="text-center">
+        <div class="tahajjud-ring">
+          <div class="tahajjud-num" id="tahajjudThis">0/7</div>
+          <div class="tahajjud-lbl">this week</div>
+        </div>
+        <div class="small muted mt8">This Week</div>
+      </div>
+    </div>
+
+    <div class="feedback-block" style="border-left:3px solid var(--accent2);">
+      <h3 class="mb8">Log Tonight / Last Night</h3>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" id="tahajjudDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Did you pray Tahajjud?</label>
+        <div class="row gap mt4">
+          <button class="btn btn-purple btn-sm" onclick="logTahajjud(true)">✅ Yes — Alhamdulillah</button>
+          <button class="btn btn-ghost btn-sm" onclick="logTahajjud(false)">❌ No — Tomorrow insha'Allah</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Target wake time for Tahajjud</label>
+        <input type="time" id="tahajjudTarget" value="03:30">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes / Dua made</label>
+        <textarea id="tahajjudNotes" placeholder="What did you ask Allah for? What felt different?"></textarea>
+      </div>
+    </div>
+
+    <h3 class="mb8 mt12">Last 30 Nights</h3>
+    <div class="quran-heatmap" id="tahajjudHeatmap"></div>
+    <div class="row gap mt8" style="flex-wrap:wrap;">
+      <span class="small muted">🟣 Prayed</span>
+      <span class="small muted">⬛ Missed</span>
+    </div>
+  </div>
+
+  <!-- Quran Practice -->
+  <div class="card">
+    <div class="card-header"><h2>📖 Daily Quran Practice</h2><span class="badge badge-purple">Consistency builds connection</span></div>
+
+    <div class="grid3 mb16">
+      <div class="stat-tile"><div class="num" id="quranStreak">0🔥</div><div class="lbl">Read Streak</div></div>
+      <div class="stat-tile"><div class="num" id="quranTotalPages">0</div><div class="lbl">Pages This Month</div></div>
+      <div class="stat-tile"><div class="num" id="quranWeekScore">0/7</div><div class="lbl">Days This Week</div></div>
+    </div>
+
+    <div class="feedback-block" style="border-left:3px solid var(--accent2);">
+      <h3 class="mb8">Log Today's Reading</h3>
+      <div class="grid2">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" id="quranDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pages / Amount Read</label>
+          <select id="quranAmount">
+            <option value="0">Select amount...</option>
+            <option value="0.5">Few ayaat</option>
+            <option value="1">Half a page</option>
+            <option value="2">1 page</option>
+            <option value="4">2 pages</option>
+            <option value="6">3+ pages</option>
+            <option value="10">Half juz</option>
+            <option value="20">1 juz</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="form-group">
+          <label class="form-label">Time of reading</label>
+          <select id="quranTime">
+            <option>After Fajr</option>
+            <option>Morning</option>
+            <option>After Asr</option>
+            <option>After Maghrib</option>
+            <option>After Isha</option>
+            <option>Tahajjud time</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Was there tadabbur (reflection)?</label>
+          <select id="quranTadabbur">
+            <option value="0">Just recitation</option>
+            <option value="1">Some reflection</option>
+            <option value="2">Deep reflection</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ayah or theme that stood out</label>
+        <textarea id="quranNote" placeholder="What hit you today? What did Allah speak to you through?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Daily target (pages)</label>
+        <input type="number" id="quranTarget" min="0.5" max="20" step="0.5" placeholder="e.g. 2">
+      </div>
+      <button class="btn btn-purple w100 mt8" onclick="logQuran()">📖 Log Reading</button>
+    </div>
+
+    <h3 class="mb8 mt16">Last 30 Days — Reading Consistency</h3>
+    <div class="quran-heatmap" id="quranHeatmap"></div>
+    <div class="row gap mt8" style="flex-wrap:wrap;">
+      <span class="small muted">⬛ None</span>
+      <span class="small muted" style="color:rgba(124,58,237,.5);">▪ Few ayaat</span>
+      <span class="small muted" style="color:rgba(124,58,237,.8);">▪ 1 page</span>
+      <span class="small" style="color:var(--accent2);">▪ 2+ pages</span>
+    </div>
+
+    <hr class="divider">
+    <h3 class="mb8">5 Prayers — Today</h3>
+    <div id="prayerTracker" class="row gap" style="flex-wrap:wrap;"></div>
+  </div>
+</div>
+
+<!-- ===== REFLECTION ===== -->
+<div class="page" id="page-reflect">
+  <div class="section-title">🌙 Daily Reflection</div>
+  <div class="section-sub">Honest review builds the man. Skip this and the system drifts.</div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'morning')">🌅 Morning</div>
+    <div class="tab" onclick="switchTab(this,'evening')">🌙 Evening</div>
+  </div>
+  <div id="tab-morning">
+    <div class="prompt-box mb16"><p>"Begin as the man you declared you are becoming."</p></div>
+    <div class="card">
+      <h2 class="mb16">Morning Intention</h2>
+      <div class="form-group"><label class="form-label">What matters most today?</label><textarea id="m1" placeholder="The most important thing I must move today..."></textarea></div>
+      <div class="form-group"><label class="form-label">What would make today a win?</label><textarea id="m2" placeholder="If I go to sleep having done ______________, that is a win."></textarea></div>
+      <div class="form-group"><label class="form-label">What must not be ignored today?</label><textarea id="m3" placeholder="The thing I have been avoiding..."></textarea></div>
+      <div class="form-group"><label class="form-label">One word for today's energy:</label><input type="text" id="m4" placeholder="e.g. Focused / Unshakeable / Controlled..."></div>
+      <button class="btn btn-primary" onclick="saveMorning()">Lock In Morning</button>
+    </div>
+  </div>
+  <div id="tab-evening" style="display:none;">
+    <div class="prompt-box mb16"><p>"The man who reviews his day builds his tomorrow."</p></div>
+    <div class="card">
+      <h2 class="mb16">Evening Review</h2>
+      <div class="form-group"><label class="form-label">What did I complete today?</label><textarea id="e1"></textarea></div>
+      <div class="form-group"><label class="form-label">What did I avoid?</label><textarea id="e2"></textarea></div>
+      <div class="form-group"><label class="form-label">Why did I avoid it?</label><textarea id="e3"></textarea></div>
+      <div class="form-group"><label class="form-label">What gave me energy?</label><textarea id="e4"></textarea></div>
+      <div class="form-group"><label class="form-label">What drained me?</label><textarea id="e5"></textarea></div>
+      <div class="form-group"><label class="form-label">What should tomorrow look like?</label><textarea id="e6"></textarea></div>
+      <div class="form-group"><label class="form-label">Today's score (0–10)</label><input type="number" id="e7" min="0" max="10"></div>
+      <button class="btn btn-primary" onclick="saveEvening()">Complete Day</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUICK CAPTURE ===== -->
+<div class="page" id="page-capture">
+  <div class="section-title">⚡ Quick Capture</div>
+  <div class="section-sub">Dump everything here. Sort it later. Clear your head now.</div>
+  <div class="card">
+    <div class="row gap mb16">
+      <input type="text" id="captureInput" placeholder="Task, idea, worry, reminder..." style="flex:1;" onkeydown="if(event.key==='Enter')addCapture()">
+      <select id="captureType" style="width:130px;"><option>Task</option><option>Idea</option><option>Worry</option><option>Reminder</option><option>Responsibility</option></select>
+      <button class="btn btn-primary" onclick="addCapture()">Capture</button>
+    </div>
+    <div id="captureList"><div class="muted small italic">Nothing captured yet.</div></div>
+  </div>
+</div>
+
+<!-- ===== WEEKLY ===== -->
+<div class="page" id="page-weekly">
+  <div class="section-title">📅 Weekly Operating System</div>
+  <div class="section-sub">Plan the week. Review the week. Own the week.</div>
+  <div class="card">
+    <h2 class="mb16">🏔️ 12-Week Goal</h2>
+    <div class="form-group"><label class="form-label">What are you building in the next 12 weeks?</label><textarea id="goal12w" placeholder="Be specific. What will exist that doesn't exist now?"></textarea></div>
+    <div class="grid2"><div class="form-group"><label class="form-label">Start</label><input type="date" id="goal12wStart"></div><div class="form-group"><label class="form-label">End</label><input type="date" id="goal12wEnd"></div></div>
+    <button class="btn btn-primary btn-sm" onclick="save12Week()">Save</button>
+  </div>
+  <div class="card">
+    <h2 class="mb16">📌 This Week's Goals</h2>
+    <div class="form-group"><label class="form-label">Week of</label><input type="week" id="weekOf"></div>
+    <div class="form-group"><input type="text" id="wg1" placeholder="Goal 1..."></div>
+    <div class="form-group"><input type="text" id="wg2" placeholder="Goal 2..."></div>
+    <div class="form-group"><input type="text" id="wg3" placeholder="Goal 3..."></div>
+    <button class="btn btn-primary btn-sm" onclick="saveWeekGoals()">Save</button>
+  </div>
+  <div class="card">
+    <h2 class="mb16">📊 Weekly Review</h2>
+    <div class="grid2">
+      <div><h3 class="mb8">✅ Working</h3><textarea id="weekWorking" placeholder="What gave energy and moved things forward?"></textarea></div>
+      <div><h3 class="mb8">⚠️ Slipping</h3><textarea id="weekSlipping" placeholder="What kept getting pushed?"></textarea></div>
+    </div>
+    <div class="form-group mt12"><label class="form-label">Focus next week</label><textarea id="weekNext"></textarea></div>
+    <button class="btn btn-primary btn-sm mt8" onclick="saveWeekReview()">Save Review</button>
+  </div>
+</div>
+
+<!-- ===== ROLES ===== -->
+<div class="page" id="page-roles">
+  <div class="section-title">👤 Role Tracker</div>
+  <div class="section-sub">Every role has a standard. Define it. Live it.</div>
+  <div id="rolesList"></div>
+</div>
+
+<!-- ===== NON-NEGOTIABLES ===== -->
+<div class="page" id="page-nonneg">
+  <div class="section-title">🛡️ Non-Negotiables</div>
+  <div class="section-sub">These are your floor. Below this the system has collapsed.</div>
+  <div class="grid3 mb16">
+    <div class="mode-strip mode-ideal" style="flex-direction:column;align-items:flex-start;"><div class="bold green">🟢 Ideal Day</div><div class="muted small">All non-negotiables + priorities + growth</div></div>
+    <div class="mode-strip mode-standard" style="flex-direction:column;align-items:flex-start;"><div class="bold" style="color:var(--accent);">🔵 Standard Day</div><div class="muted small">All non-negotiables + top 1–2 priorities</div></div>
+    <div class="mode-strip mode-stoploss" style="flex-direction:column;align-items:flex-start;"><div class="bold red">🔴 Stop-Loss Day</div><div class="muted small">Non-negotiables only. No shame.</div></div>
+  </div>
+  <div class="card"><div class="card-header"><h2>Add / Edit Non-Negotiables</h2><button class="btn btn-primary btn-sm" onclick="addNN()">+ Add</button></div><div id="nnEditList"></div></div>
+  <div class="card">
+    <h2 class="mb16">🧭 Stop-Loss Statement</h2>
+    <div class="form-group"><textarea id="stopLossStatement" placeholder="Even on my worst day: I pray Fajr..."></textarea></div>
+    <button class="btn btn-amber btn-sm" onclick="saveStopLoss()">Save</button>
+  </div>
+</div>
+
+<!-- ===== TASKS ===== -->
+<div class="page" id="page-tasks">
+  <div class="section-title">✅ Task System</div>
+  <div class="section-sub">Built for someone who avoids. Honest. No hiding.</div>
+  <div class="card">
+    <div class="card-header"><h2>⏱️ Focus Sprint</h2><div class="row gap"><button class="btn btn-ghost btn-sm" onclick="setTimer(10)">10m</button><button class="btn btn-ghost btn-sm" onclick="setTimer(25)">25m</button><button class="btn btn-ghost btn-sm" onclick="setTimer(50)">50m</button></div></div>
+    <div class="timer-display" id="timerDisplay">25:00</div>
+    <div style="text-align:center;margin-bottom:8px;color:var(--text2);font-size:13px;" id="timerTask">No task selected</div>
+    <div class="row gap" style="justify-content:center;"><button class="btn btn-green" onclick="startTimer()">▶ Start</button><button class="btn btn-ghost" onclick="pauseTimer()">⏸ Pause</button><button class="btn btn-ghost" onclick="resetTimer()">↺ Reset</button></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h2>➕ Add Task</h2></div>
+    <div class="grid2">
+      <div class="form-group"><label class="form-label">Task Name</label><input type="text" id="newTaskTitle" placeholder="What needs to be done?"></div>
+      <div class="form-group"><label class="form-label">Next Physical Action</label><input type="text" id="newTaskAction" placeholder="The very first tiny step..."></div>
+    </div>
+    <div class="grid3">
+      <div class="form-group"><label class="form-label">Deadline</label><input type="date" id="newTaskDeadline"></div>
+      <div class="form-group"><label class="form-label">Time</label><select id="newTaskTime"><option>5 min</option><option>10 min</option><option>25 min</option><option>1 hour</option><option>2+ hours</option></select></div>
+      <div class="form-group"><label class="form-label">Urgency</label><select id="newTaskUrgency"><option value="normal">Normal</option><option value="urgent">Urgent</option><option value="overdue">Overdue</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Why might I resist this?</label><input type="text" id="newTaskResist" placeholder="Honest answer..."></div>
+    <div class="form-group"><label class="form-label">Role</label><select id="newTaskRole"><option>Faith / Deen</option><option>Husband</option><option>Father</option><option>Son</option><option>Employee</option><option>Business Builder</option><option>Health / Gym</option><option>Self-Mastery</option><option>General</option></select></div>
+    <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+  </div>
+  <div class="card">
+    <div class="card-header"><h2>📋 Tasks</h2><div class="row gap"><button class="btn btn-ghost btn-sm" onclick="filterTasks('all')">All</button><button class="btn btn-ghost btn-sm" onclick="filterTasks('today')">Today</button><button class="btn btn-ghost btn-sm" onclick="filterTasks('overdue')">Overdue</button></div></div>
+    <div id="taskList"><div class="muted small italic">No tasks yet.</div></div>
+  </div>
+</div>
+
+<!-- ===== ANALYTICS ===== -->
+<div class="page" id="page-analytics">
+  <div class="section-title">📊 Analytics & Progress</div>
+  <div class="section-sub">What gets measured gets managed.</div>
+  <div class="grid3 mb16">
+    <div class="stat-tile"><div class="num" id="a-streak">0🔥</div><div class="lbl">Streak</div></div>
+    <div class="stat-tile"><div class="num gold" id="a-points">0</div><div class="lbl">Points</div></div>
+    <div class="stat-tile"><div class="num" id="a-tasksCompleted">0</div><div class="lbl">Tasks Done</div></div>
+  </div>
+  <div class="card">
+    <h2 class="mb16">🏆 Points & Rewards</h2>
+    <div class="grid2">
+      <div><h3 class="mb8">Earn</h3><div class="muted small" style="line-height:2.2;">✅ Priority task: +10pts<br>🛡️ Non-negotiable: +5pts<br>🌙 Tahajjud: +15pts<br>📖 Quran read: +10pts<br>🌅 Fajr loop: +5pts<br>🌆 Asr loop: +5pts<br>🌙 Before Bed loop: +8pts<br>🌙 Evening reflection: +8pts<br>🔥 Streak day: +3pts</div></div>
+      <div><h3 class="mb8">Penalties</h3><div class="muted small" style="line-height:2.2;">🚨 Missed non-negotiable: -5pts<br>📵 Doom scroll reported: -8pts<br>😴 Missed Fajr: -10pts<br>🚫 Task carried 3+ days: -5pts</div></div>
+    </div>
+    <hr class="divider">
+    <h3 class="mb8">Rewards</h3>
+    <div id="rewardsList"></div>
+  </div>
+  <div class="card"><h2 class="mb16">📈 7-Day Score Trend</h2><div id="weekSnapshot"></div></div>
+  <div class="card"><h2 class="mb16">⚠️ Most Neglected Roles</h2><div id="neglectedAreas"></div></div>
+  <div class="card">
+    <h2 class="mb16">🌙 Deen Stats</h2>
+    <div class="grid3">
+      <div class="stat-tile"><div class="num" id="an-tahajjud">0</div><div class="lbl">Tahajjud This Month</div></div>
+      <div class="stat-tile"><div class="num" id="an-quranPages">0</div><div class="lbl">Quran Pages This Month</div></div>
+      <div class="stat-tile"><div class="num" id="an-fajrLoops">0</div><div class="lbl">Fajr Loops Done</div></div>
+    </div>
+    <div class="grid2 mt12">
+      <div class="stat-tile"><div class="num" id="an-bedLoops">0</div><div class="lbl">Before Bed Loops Done</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RE-ENTRY ===== -->
+<div class="page" id="page-reset">
+  <div class="section-title">🔄 Re-Entry Mode</div>
+  <div class="section-sub">You fell off. That is allowed. What is not allowed is staying down.</div>
+  <div class="prompt-box mb16"><p>"Every man falls. The system does not judge the fall. It only asks: what is the first step back?"</p></div>
+  <div class="card">
+    <h2 class="mb16">Re-Entry Protocol</h2>
+    <div class="form-group"><label class="form-label">How long have I been off?</label><select id="reOff"><option>1-2 days</option><option>3-5 days</option><option>1 week</option><option>2+ weeks</option></select></div>
+    <div class="form-group"><label class="form-label">What slipped?</label><textarea id="re1"></textarea></div>
+    <div class="form-group"><label class="form-label">What still matters?</label><textarea id="re2"></textarea></div>
+    <div class="form-group"><label class="form-label">Minimum recovery plan for today?</label><textarea id="re3"></textarea></div>
+    <div class="form-group"><label class="form-label">What to restart first?</label><textarea id="re4"></textarea></div>
+    <button class="btn btn-primary" onclick="saveReEntry()">📍 Commit to Re-Entry</button>
+    <button class="btn btn-ghost mt8" onclick="fullSystemReset()">↺ Soft Reset</button>
+  </div>
+</div>
+
+<!-- ===== SETTINGS ===== -->
+<div class="page" id="page-settings">
+  <div class="section-title">⚙️ Settings</div>
+  <div class="section-sub">Configure your command center.</div>
+  <div class="card">
+    <h2 class="mb16">Your Info</h2>
+    <div class="form-group"><label class="form-label">Name</label><input type="text" id="settingName" placeholder="Your name..."></div>
+    <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save</button>
+  </div>
+  <div class="card">
+    <h2 class="mb16">🏆 Rewards</h2>
+    <div class="row gap mb12">
+      <input type="text" id="rewardName" placeholder="Reward name..." style="flex:1;">
+      <input type="number" id="rewardPts" placeholder="Points" style="width:80px;">
+      <button class="btn btn-primary btn-sm" onclick="addReward()">Add</button>
+    </div>
+    <div id="settingRewardsList"></div>
+  </div>
+  <div class="card">
+    <h2 class="mb16">💾 Data</h2>
+    <div class="row gap flex-wrap">
+      <button class="btn btn-ghost" onclick="exportData()">📤 Export JSON</button>
+      <button class="btn btn-ghost" onclick="importData()">📥 Import JSON</button>
+      <button class="btn btn-red" onclick="dangerReset()">🗑️ Wipe All Data</button>
+    </div>
+    <input type="file" id="importFile" style="display:none;" accept=".json" onchange="loadImport(event)">
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+/* ============================================================
+   DATA STORE
+============================================================ */
+let DB = loadDB();
+
+function loadDB(){
+  const s = localStorage.getItem('pos_db_v2');
+  if(s) return JSON.parse(s);
+  return getDefaultDB();
+}
+
+function getDefaultDB(){
+  return {
+    name:'Brother', dayMode:'ideal', points:0, streak:0,
+    lastActiveDate:'', tasksCompleted:0,
+    priorities:{p1:'',p2:'',p3:''},
+    deadlines:[
+      {id:1,label:'Review family finances',date:offsetDate(7),done:false},
+      {id:2,label:'Business plan first draft',date:offsetDate(30),done:false}
+    ],
+    nonNegotiables:[
+      {id:1,label:'Fajr prayer',category:'faith',done:false,stoploss:true},
+      {id:2,label:'All 5 prayers',category:'faith',done:false,stoploss:false},
+      {id:3,label:'Read Quran (min 5 mins)',category:'faith',done:false,stoploss:true},
+      {id:4,label:'Key work task',category:'work',done:false,stoploss:true},
+      {id:5,label:'Connect with wife',category:'family',done:false,stoploss:true},
+      {id:6,label:'Spend time with kids',category:'family',done:false,stoploss:false},
+      {id:7,label:'Movement / gym',category:'health',done:false,stoploss:false},
+      {id:8,label:'No doom scrolling',category:'discipline',done:false,stoploss:true}
+    ],
+    tasks:[
+      {id:1,title:'Sort finances overview',action:'Open bank app and note balances',deadline:offsetDate(3),time:'25 min',urgency:'urgent',resist:'Feels heavy',role:'Employee',done:false,carryCount:0,created:today()},
+      {id:2,title:'Gym session',action:'Put gym bag by door now',deadline:today(),time:'1 hour',urgency:'normal',resist:'Low energy',role:'Health / Gym',done:false,carryCount:0,created:today()},
+      {id:3,title:'Read to the kids tonight',action:'Pick a book at bedtime',deadline:today(),time:'15 min',urgency:'normal',resist:'None',role:'Father',done:false,carryCount:0,created:today()}
+    ],
+    roles:[
+      {id:1,icon:'🕌',name:'Servant of Allah',focus:'Consistent 5 prayers + Quran daily',min:'Never miss Fajr',target:'5 prayers + 15 mins Quran + 1 Islamic lesson',score:0,notes:'',status:'needs-work'},
+      {id:2,icon:'💑',name:'Husband',focus:'Show up emotionally — listen, lead, connect',min:'Check in daily with wife',target:'1:1 time this week',score:0,notes:'',status:'on-track'},
+      {id:3,icon:'👨‍👧',name:'Father',focus:'Present, not just physically there',min:'Say I love you + 10 mins real time',target:'Family dinner 3x + school run 2x',score:0,notes:'',status:'on-track'},
+      {id:4,icon:'👴',name:'Son',focus:'Check on mum regularly',min:'Weekly call',target:'Visit or call 2x this week',score:0,notes:'',status:'needs-work'},
+      {id:5,icon:'💼',name:'Employee',focus:'Execute top 3 tasks without avoidance',min:'1 key deliverable per day',target:'Zero carry-forwards this week',score:0,notes:'',status:'on-track'},
+      {id:6,icon:'🚀',name:'Business Builder',focus:'30 mins daily on the business',min:'1 business action per day',target:'Complete one revenue-generating action',score:0,notes:'',status:'struggling'},
+      {id:7,icon:'💪',name:'Health / Gym',focus:'Consistent training + sleep + nutrition',min:'Movement every day',target:'3 gym sessions this week',score:0,notes:'',status:'needs-work'},
+      {id:8,icon:'🧠',name:'Self-Mastery',focus:'Read, reflect, reduce doom scroll',min:'Evening reflection done',target:'30 mins reading daily',score:0,notes:'',status:'needs-work'}
+    ],
+    captures:[],
+    weekGoals:{w1:'',w2:'',w3:'',weekOf:''},
+    goal12w:{text:'',start:'',end:''},
+    weekReview:{working:'',slipping:'',next:''},
+    dailyScores:{},
+    morningReflections:{},
+    eveningReflections:{},
+    // FEEDBACK LOOPS
+    fajrLoops:{},   // keyed by date
+    asrLoops:{},    // keyed by date
+    bedLoops:{},    // keyed by date
+    // TAHAJJUD
+    tahajjudLog:{}, // keyed by date: true/false
+    tahajjudTarget:'03:30',
+    // QURAN
+    quranLog:{},    // keyed by date: {amount, time, tadabbur, note}
+    quranTarget:2,
+    // PRAYERS
+    prayerLog:{},   // keyed by date: {fajr,dhuhr,asr,maghrib,isha}
+    stopLossStatement:'Even on my worst day: I pray Fajr, I acknowledge my family, I do one work task, I drink water and move my body.',
+    reEntries:[],
+    rewards:[
+      {id:1,label:'New book',points:100},
+      {id:2,label:'Takeaway with family',points:200},
+      {id:3,label:'Day trip with kids',points:500}
+    ],
+    settings:{resetTime:'00:00'}
+  };
+}
+
+function saveDB(){ localStorage.setItem('pos_db_v2', JSON.stringify(DB)); updateSidebar(); }
+function today(){ return new Date().toISOString().split('T')[0]; }
+function offsetDate(d){ const dt=new Date(); dt.setDate(dt.getDate()+d); return dt.toISOString().split('T')[0]; }
+function formatDate(d){ if(!d) return ''; const dt=new Date(d+'T00:00:00'); return dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}); }
+function daysLeft(d){ if(!d) return null; return Math.ceil((new Date(d+'T00:00:00')-new Date(today()+'T00:00:00'))/(1000*60*60*24)); }
+
+/* ============================================================
+   POINTS + STREAK
+============================================================ */
+function checkStreak(){
+  const t=today();
+  if(DB.lastActiveDate===t) return;
+  if(DB.lastActiveDate===offsetDate(-1)){ DB.streak++; } else { DB.streak=1; }
+  DB.lastActiveDate=t; saveDB();
+}
+
+function addPoints(n,reason){
+  DB.points+=n; if(DB.points<0) DB.points=0; saveDB(); showToast((n>0?'+':'')+n+' pts — '+reason);
+}
+
+function showToast(msg){
+  let t=document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:13px;color:var(--text);z-index:300;opacity:0;transition:.3s;max-width:300px;'; document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._t); t._t=setTimeout(()=>{ t.style.opacity='0'; },2500);
+}
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);
+  if(pg) pg.classList.add('active');
+  const nav=document.querySelector('[data-page="'+id+'"]');
+  if(nav) nav.classList.add('active');
+  renderPage(id);
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function renderPage(id){
+  const map={today:renderToday,feedback:renderFeedback,deen:renderDeen,roles:renderRoles,nonneg:renderNN,tasks:renderTasks,analytics:renderAnalytics,settings:renderSettings,capture:renderCapture,weekly:renderWeekly};
+  if(map[id]) map[id]();
+}
+
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+
+/* ============================================================
+   TODAY
+============================================================ */
+function renderToday(){
+  checkStreak();
+  const t=today();
+  document.getElementById('todayTitle').textContent='Good '+getGreeting()+', '+DB.name;
+  document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const nnDone=DB.nonNegotiables.filter(n=>n.done).length;
+  const nnTotal=DB.nonNegotiables.length;
+  const score=nnTotal?Math.round((nnDone/nnTotal)*100):0;
+  document.getElementById('dailyScoreDisplay').textContent=score+'%';
+  document.getElementById('dailyScoreBar').style.width=score+'%';
+  document.getElementById('streakDisplay').textContent=DB.streak+'🔥';
+  document.getElementById('pointsDisplay').textContent=DB.points;
+  const pri=DB.priorities;
+  document.getElementById('p1').value=pri.p1||'';
+  document.getElementById('p2').value=pri.p2||'';
+  document.getElementById('p3').value=pri.p3||'';
+
+  // NN list
+  const nnList=document.getElementById('todayNNList');
+  nnList.innerHTML='';
+  DB.nonNegotiables.forEach(nn=>{
+    const div=document.createElement('div');
+    div.className='task-item';
+    div.innerHTML=`<div class="task-check ${nn.done?'checked':''}" onclick="toggleNN(${nn.id})">${nn.done?'✓':''}</div>
+    <div class="task-body"><div class="task-title">${nn.label}</div>
+    <div class="task-meta"><span class="badge ${getCatBadge(nn.category)}">${nn.category}</span>${nn.stoploss?'<span class="badge badge-red">🛑 stop-loss</span>':''}</div></div>`;
+    nnList.appendChild(div);
+  });
+  document.getElementById('nnScoreToday').textContent=nnDone+'/'+nnTotal+' done';
+
+  // Overdue
+  const overdue=DB.tasks.filter(t=>!t.done&&t.deadline&&t.deadline<today());
+  const os=document.getElementById('overdueSection');
+  const ol=document.getElementById('overdueList');
+  if(overdue.length){
+    os.style.display='block'; ol.innerHTML='';
+    overdue.forEach(t=>{
+      const div=document.createElement('div'); div.className='task-item overdue';
+      div.innerHTML=`<div style="flex:1;"><div class="task-title">${t.title}</div><div class="task-meta"><span class="red small">⚠ ${Math.abs(daysLeft(t.deadline))} days overdue</span></div><div class="small amber mt4">→ ${t.action||'—'}</div></div><button class="btn btn-ghost btn-sm" onclick="startFocusOn('${t.title.replace(/'/g,"\\'")}')">Start</button>`;
+      ol.appendChild(div);
+    });
+  } else { os.style.display='none'; }
+
+  // Deadlines
+  const dlList=document.getElementById('deadlineList');
+  const dlEmpty=document.getElementById('deadlineEmpty');
+  dlList.innerHTML='';
+  const active=DB.deadlines.filter(d=>!d.done).sort((a,b)=>a.date.localeCompare(b.date));
+  dlEmpty.style.display=active.length?'none':'block';
+  active.forEach(d=>{
+    const dl=daysLeft(d.date);
+    const div=document.createElement('div'); div.className='task-item';
+    div.innerHTML=`<div class="task-body"><div class="task-title">${d.label}</div><div class="task-meta"><span class="${dl<=3?'red':dl<=7?'amber':'green'} small">${dl<=0?'TODAY':dl+' days left'}</span><span class="muted small">${formatDate(d.date)}</span></div></div><button class="reset-btn" onclick="removeDeadline(${d.id})">×</button>`;
+    dlList.appendChild(div);
+  });
+
+  // Mode
+  const modes={ideal:{label:'🟢 Ideal Day',bg:'rgba(34,197,94,.15)',color:'var(--green)'},standard:{label:'🔵 Standard Day',bg:'rgba(79,142,247,.15)',color:'var(--accent)'},stoploss:{label:'🔴 Stop-Loss',bg:'rgba(239,68,68,.15)',color:'var(--red)'}};
+  const m=modes[DB.dayMode]||modes.ideal;
+  const mb=document.getElementById('modeBtn');
+  mb.textContent=m.label; mb.style.background=m.bg; mb.style.color=m.color;
+
+  // Prompts
+  const prompts=['"What is the one thing that — if completed today — makes everything else easier?"','"What are you avoiding right now? Name it."','"Would the man you declared you are becoming be proud of how you started today?"','"What would make today a win? Define it now."','"Your family is watching how you carry yourself today."','"Switch to stop-loss mode if needed — but never to zero mode."','"The version of you your kids describe to their kids is being built today."'];
+  document.getElementById('dailyPromptText').textContent=prompts[new Date().getDay()%prompts.length];
+
+  // Feedback reminder
+  checkFeedbackReminder();
+
+  // MVD
+  if(DB.stopLossStatement) document.getElementById('mvdList').textContent=DB.stopLossStatement;
+}
+
+function getGreeting(){ const h=new Date().getHours(); return h<12?'morning':h<17?'afternoon':'evening'; }
+function getCatBadge(c){ return {faith:'badge-purple',work:'badge-blue',family:'badge-green',health:'badge-green',discipline:'badge-amber'}[c]||'badge-blue'; }
+
+function toggleNN(id){
+  const nn=DB.nonNegotiables.find(n=>n.id===id);
+  if(!nn) return;
+  nn.done=!nn.done;
+  if(nn.done) addPoints(5,'Non-negotiable: '+nn.label);
+  else { DB.points-=5; if(DB.points<0)DB.points=0; saveDB(); }
+  saveDB(); renderToday();
+}
+
+function savePriorities(){ DB.priorities={p1:document.getElementById('p1').value,p2:document.getElementById('p2').value,p3:document.getElementById('p3').value}; saveDB(); showToast('Priorities saved'); }
+function cycleDayMode(){ const o=['ideal','standard','stoploss']; DB.dayMode=o[(o.indexOf(DB.dayMode)+1)%3]; saveDB(); renderToday(); }
+function activateStopLoss(){ DB.dayMode='stoploss'; saveDB(); renderToday(); showToast('Stop-Loss mode activated.'); }
+function addDeadline(){ openModal(`<h2>Add Deadline</h2><div class="form-group mt12"><label class="form-label">Label</label><input type="text" id="dlLabel" placeholder="What is the deadline?"></div><div class="form-group"><label class="form-label">Date</label><input type="date" id="dlDate"></div><button class="btn btn-primary mt8" onclick="confirmDeadline()">Add</button>`); }
+function confirmDeadline(){ const l=document.getElementById('dlLabel').value,d=document.getElementById('dlDate').value; if(!l||!d){showToast('Fill both fields');return;} DB.deadlines.push({id:Date.now(),label:l,date:d,done:false}); saveDB(); closeModal(); renderToday(); }
+function removeDeadline(id){ DB.deadlines=DB.deadlines.filter(d=>d.id!==id); saveDB(); renderToday(); }
+
+let feedbackLoopTarget='fajr-loop';
+function openFeedbackLoop(){
+  showPage('feedback');
+  const tabEl=document.querySelector(`#page-feedback .tab[onclick*="${feedbackLoopTarget.replace('-loop','')}"]`);
+  if(tabEl) switchFeedbackTab(tabEl, feedbackLoopTarget);
+}
+
+function checkFeedbackReminder(){
+  const t=today();
+  const h=new Date().getHours();
+  const fr=document.getElementById('feedbackReminder');
+  const ft=document.getElementById('feedbackReminderText');
+  const hasFajr=!!DB.fajrLoops[t];
+  const hasAsr=!!DB.asrLoops[t];
+  const hasBed=!!DB.bedLoops[t];
+  if(h>=5 && h<13 && !hasFajr){
+    fr.style.display='block';
+    ft.textContent='Your Fajr feedback loop is waiting. Takes 2 minutes. Sets the tone for everything.';
+    document.getElementById('feedbackReminderBtn').textContent='Open Fajr Loop';
+    feedbackLoopTarget='fajr-loop';
+  } else if(h>=15 && h<20 && !hasAsr){
+    fr.style.display='block';
+    ft.textContent='Asr has passed. How was the first half of your day? Check in now.';
+    document.getElementById('feedbackReminderBtn').textContent='Open Asr Loop';
+    feedbackLoopTarget='asr-loop';
+  } else if(h>=20 && !hasBed){
+    fr.style.display='block';
+    ft.textContent='Close the day properly. Your Before Bed loop takes 3 minutes. Review, reflect, rest.';
+    document.getElementById('feedbackReminderBtn').textContent='Open Bed Loop';
+    feedbackLoopTarget='bed-loop';
+  } else {
+    fr.style.display='none';
+  }
+  // dot on sidebar
+  const dot=document.getElementById('feedbackDot');
+  if(dot) dot.style.display=((!hasFajr&&h>=5)||((!hasAsr)&&h>=15)||((!hasBed)&&h>=20))?'block':'none';
+}
+
+/* ============================================================
+   FEEDBACK LOOPS
+============================================================ */
+function renderFeedback(){
+  const t=today();
+  const fEl=document.getElementById('fajrLoopDate');
+  const aEl=document.getElementById('asrLoopDate');
+  const bEl=document.getElementById('bedLoopDate');
+  if(fEl) fEl.textContent=formatDate(t);
+  if(aEl) aEl.textContent=formatDate(t);
+  if(bEl) bEl.textContent=formatDate(t);
+
+  // Build score dots for each field
+  const fajrFields=[{id:'fd-fajr',key:'fajr'},{id:'fd-sleep',key:'sleep'},{id:'fd-clarity',key:'clarity'},{id:'fd-energy',key:'energy'},{id:'fd-iman',key:'iman'}];
+  const asrFields=[{id:'ad-priorities',key:'priorities'},{id:'ad-nonneg',key:'nonneg'},{id:'ad-focus',key:'focus'},{id:'ad-family',key:'family'},{id:'ad-avoidance',key:'avoidance'}];
+  const bedFields=[{id:'bd-priority',key:'priority'},{id:'bd-nonneg',key:'nonneg'},{id:'bd-family',key:'family'},{id:'bd-mental',key:'mental'},{id:'bd-gratitude',key:'gratitude'}];
+
+  const savedFajr=DB.fajrLoops[t]||{};
+  const savedAsr=DB.asrLoops[t]||{};
+  const savedBed=DB.bedLoops[t]||{};
+
+  buildScoreDots(fajrFields, savedFajr, 'fajr');
+  buildScoreDots(asrFields, savedAsr, 'asr');
+  buildScoreDots(bedFields, savedBed, 'bed');
+
+  // Pre-fill text fields
+  const sf=s=>document.getElementById(s);
+  if(savedFajr.mustdo) sf('fajr-mustdo').value=savedFajr.mustdo;
+  if(savedFajr.intention) sf('fajr-intention').value=savedFajr.intention;
+  if(savedFajr.dua) sf('fajr-dua').value=savedFajr.dua;
+  if(savedFajr.quranAmount) sf('fajr-quran-amount').value=savedFajr.quranAmount;
+  if(savedAsr.happened) sf('asr-happened').value=savedAsr.happened;
+  if(savedAsr.avoiding) sf('asr-avoiding').value=savedAsr.avoiding;
+  if(savedAsr.maghrib) sf('asr-maghrib').value=savedAsr.maghrib;
+  if(savedBed.win) sf('bed-win').value=savedBed.win;
+  if(savedBed.carrying) sf('bed-carrying').value=savedBed.carrying;
+  if(savedBed.tomorrow) sf('bed-tomorrow').value=savedBed.tomorrow;
+  if(savedBed.gratitudeText) sf('bed-gratitude-text').value=savedBed.gratitudeText;
+  if(savedBed.sleeptime) sf('bed-sleeptime').value=savedBed.sleeptime;
+
+  const fajrStatus=document.getElementById('fajrLoopStatus');
+  const asrStatus=document.getElementById('asrLoopStatus');
+  const bedStatus=document.getElementById('bedLoopStatus');
+  if(fajrStatus) fajrStatus.textContent=DB.fajrLoops[t]?'✅ Fajr loop submitted today':'Not submitted yet.';
+  if(asrStatus) asrStatus.textContent=DB.asrLoops[t]?'✅ Asr loop submitted today':'Not submitted yet.';
+  if(bedStatus) bedStatus.textContent=DB.bedLoops[t]?'✅ Before Bed loop submitted — rest well.':'Not submitted yet.';
+
+  renderLoopHistory();
+}
+
+function buildScoreDots(fields, saved, prefix){
+  fields.forEach(f=>{
+    const container=document.getElementById(f.id);
+    if(!container) return;
+    container.innerHTML='';
+    const current=saved[f.key]||0;
+    for(let i=1;i<=5;i++){
+      const dot=document.createElement('div');
+      dot.className='score-dot'+(current===i?' active-'+i:'');
+      dot.textContent=i;
+      dot.onclick=(function(field,val,pref){ return function(){
+        const loops=pref==='fajr'?DB.fajrLoops:pref==='asr'?DB.asrLoops:DB.bedLoops;
+        const t=today();
+        if(!loops[t]) loops[t]={};
+        loops[t][field]=val;
+        saveDB(); renderFeedback();
+      }; })(f.key,i,prefix);
+      container.appendChild(dot);
+    }
+  });
+}
+
+function saveFajrLoop(){
+  const t=today();
+  if(!DB.fajrLoops[t]) DB.fajrLoops[t]={};
+  DB.fajrLoops[t].mustdo=document.getElementById('fajr-mustdo').value;
+  DB.fajrLoops[t].intention=document.getElementById('fajr-intention').value;
+  DB.fajrLoops[t].dua=document.getElementById('fajr-dua').value;
+  DB.fajrLoops[t].quranAmount=document.getElementById('fajr-quran-amount').value;
+  DB.fajrLoops[t].submittedAt=new Date().toISOString();
+  addPoints(5,'Fajr feedback loop completed');
+  saveDB(); renderFeedback(); showToast('🌅 Fajr loop saved. Bismillah — begin.');
+}
+
+function saveAsrLoop(){
+  const t=today();
+  if(!DB.asrLoops[t]) DB.asrLoops[t]={};
+  DB.asrLoops[t].happened=document.getElementById('asr-happened').value;
+  DB.asrLoops[t].avoiding=document.getElementById('asr-avoiding').value;
+  DB.asrLoops[t].maghrib=document.getElementById('asr-maghrib').value;
+  DB.asrLoops[t].energy=document.getElementById('asr-energy').value;
+  DB.asrLoops[t].prayer=document.getElementById('asr-prayer').value;
+  DB.asrLoops[t].submittedAt=new Date().toISOString();
+  addPoints(5,'Asr feedback loop completed');
+  saveDB(); renderFeedback(); showToast('🌆 Asr loop saved. Use what remains of the day.');
+}
+
+function saveBedLoop(){
+  const t=today();
+  if(!DB.bedLoops[t]) DB.bedLoops[t]={};
+  DB.bedLoops[t].win=document.getElementById('bed-win').value;
+  DB.bedLoops[t].carrying=document.getElementById('bed-carrying').value;
+  DB.bedLoops[t].tomorrow=document.getElementById('bed-tomorrow').value;
+  DB.bedLoops[t].gratitudeText=document.getElementById('bed-gratitude-text').value;
+  DB.bedLoops[t].isha=document.getElementById('bed-isha').value;
+  DB.bedLoops[t].phone=document.getElementById('bed-phone').value;
+  DB.bedLoops[t].sleeptime=document.getElementById('bed-sleeptime').value;
+  DB.bedLoops[t].submittedAt=new Date().toISOString();
+  addPoints(8,'Before Bed loop completed 🌙');
+  saveDB(); renderFeedback(); showToast('🌙 Before Bed loop saved. JazakAllahu Khayran. Rest well.');
+}
+
+function switchFeedbackTab(el,id){
+  document.querySelectorAll('#page-feedback .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['fajr-loop','asr-loop','bed-loop','loop-history'].forEach(t=>{ const el=document.getElementById('tab-'+t); if(el) el.style.display='none'; });
+  const target=document.getElementById('tab-'+id);
+  if(target) target.style.display='block';
+  if(id==='loop-history') renderLoopHistory();
+}
+
+function renderLoopHistory(){
+  // Trends — last 7 days
+  renderTrendChart('fajrTrendChart', DB.fajrLoops, ['fajr','sleep','clarity','energy','iman'], 'purple');
+  renderTrendChart('asrTrendChart', DB.asrLoops, ['priorities','nonneg','focus','family','avoidance'], 'amber');
+  renderTrendChart('bedTrendChart', DB.bedLoops, ['priority','nonneg','family','mental','gratitude'], 'red');
+
+  // Recent entries
+  const list=document.getElementById('loopHistoryList');
+  if(!list) return;
+  list.innerHTML='';
+  const dates=[];
+  for(let i=6;i>=0;i--) dates.push(offsetDate(-i));
+  let any=false;
+  dates.reverse().forEach(d=>{
+    const fajr=DB.fajrLoops[d];
+    const asr=DB.asrLoops[d];
+    const bed=DB.bedLoops[d];
+    if(!fajr&&!asr&&!bed) return;
+    any=true;
+    const div=document.createElement('div');
+    div.className='feedback-block mb8';
+    let html=`<div class="bold small mb8">${formatDate(d)}</div>`;
+    if(fajr){
+      const avg=avgScores(fajr,['fajr','sleep','clarity','energy','iman']);
+      html+=`<div class="row gap mb4"><span class="badge badge-purple small">🌅 Fajr</span><span class="small muted">avg ${avg}/5</span>${fajr.intention?`<span class="small italic muted">"${fajr.intention}"</span>`:''}</div>`;
+    }
+    if(asr){
+      const avg=avgScores(asr,['priorities','nonneg','focus','family','avoidance']);
+      html+=`<div class="row gap mt4"><span class="badge badge-amber small">🌆 Asr</span><span class="small muted">avg ${avg}/5</span>${asr.avoiding?`<span class="small red">⚠ Avoiding: ${asr.avoiding}</span>`:''}</div>`;
+    }
+    if(bed){
+      const avg=avgScores(bed,['priority','nonneg','family','mental','gratitude']);
+      html+=`<div class="row gap mt4"><span class="badge badge-red small">🌙 Bed</span><span class="small muted">avg ${avg}/5</span>${bed.win?`<span class="small green">🏆 ${bed.win}</span>`:''}</div>`;
+    }
+    div.innerHTML=html;
+    list.appendChild(div);
+  });
+  if(!any) list.innerHTML='<div class="muted small italic">No entries yet. Submit your first loop above.</div>';
+
+  // Pattern insights
+  renderPatternInsights();
+}
+
+function avgScores(obj, keys){
+  const vals=keys.map(k=>obj[k]||0).filter(v=>v>0);
+  if(!vals.length) return 0;
+  return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+}
+
+function renderTrendChart(containerId, loopData, keys, colorClass){
+  const container=document.getElementById(containerId);
+  if(!container) return;
+  container.innerHTML='';
+  const colorMap={purple:'var(--accent2)',amber:'var(--amber)',red:'var(--accent2)'};
+  const actualColor=colorClass==='red'?'#7c3aed':colorClass==='purple'?'var(--accent2)':'var(--amber)';
+  for(let i=6;i>=0;i--){
+    const d=offsetDate(-i);
+    const entry=loopData[d];
+    const avg=entry?parseFloat(avgScores(entry,keys)):0;
+    const pct=avg?(avg/5)*100:0;
+    const col=document.createElement('div');
+    col.className='trend-col';
+    col.innerHTML=`<div class="trend-seg" style="height:${Math.max(4,pct*0.45)}px;background:${colorClass==='bed'||colorClass==='red'?'#4f8ef7':colorClass==='purple'?'var(--accent2)':'var(--amber)'};opacity:${avg?1:0.2};"></div><div class="trend-lbl">${formatDate(d).split(' ')[0]}</div>`;
+    container.appendChild(col);
+  }
+}
+
+function renderPatternInsights(){
+  const el=document.getElementById('patternInsights');
+  if(!el) return;
+  const entries=Object.keys(DB.fajrLoops).length+Object.keys(DB.asrLoops).length+Object.keys(DB.bedLoops||{}).length;
+  if(entries<3){ el.innerHTML='<div class="muted small italic">Complete 3+ days of loops to see patterns.</div>'; return; }
+
+  let insights=[];
+  // Check for low fajr prayer scores
+  const recentFajr=Object.entries(DB.fajrLoops).slice(-5);
+  const avgFajrPrayer=recentFajr.filter(([,v])=>v.fajr).reduce((a,[,v])=>a+v.fajr,0)/Math.max(1,recentFajr.filter(([,v])=>v.fajr).length);
+  if(avgFajrPrayer<3) insights.push({icon:'🕌',text:'Fajr prayer scores are low this week. Consider setting an alarm 15 mins earlier.',color:'var(--red)'});
+  // Check for avoidance pattern
+  const recentAsr=Object.entries(DB.asrLoops).slice(-5);
+  const avoidingEntries=recentAsr.filter(([,v])=>v.avoiding&&v.avoiding.length>2);
+  if(avoidingEntries.length>=3) insights.push({icon:'⚠️',text:'You have reported avoidance 3+ days running. Name the task and start with 5 minutes.',color:'var(--amber)'});
+  // Check for good Iman scores
+  const imanAvg=recentFajr.filter(([,v])=>v.iman).reduce((a,[,v])=>a+v.iman,0)/Math.max(1,recentFajr.filter(([,v])=>v.iman).length);
+  if(imanAvg>=4) insights.push({icon:'🤲',text:'Your connection to Allah after Fajr is strong. This is your anchor — protect it.',color:'var(--green)'});
+  // Check before bed patterns
+  const recentBed=Object.entries(DB.bedLoops||{}).slice(-5);
+  const phoneIssues=recentBed.filter(([,v])=>v.phone==='0').length;
+  if(phoneIssues>=3) insights.push({icon:'📵',text:'Phone before bed 3+ nights running. This is affecting your sleep quality and Fajr. Put it in another room.',color:'var(--red)'});
+  const gratitudeAvg=recentBed.filter(([,v])=>v.gratitude).reduce((a,[,v])=>a+v.gratitude,0)/Math.max(1,recentBed.filter(([,v])=>v.gratitude).length);
+  if(gratitudeAvg>=4&&recentBed.length>=3) insights.push({icon:'🙏',text:'Gratitude scores are high at bedtime — this is a strong pattern. Protect your evening routine.',color:'var(--green)'});
+  const carryingEntries=recentBed.filter(([,v])=>v.carrying&&v.carrying.length>5);
+  if(carryingEntries.length>=3) insights.push({icon:'🎒',text:'You are carrying unresolved stress to bed repeatedly. Process these in your journal before sleep.',color:'var(--amber)'});
+
+  if(!insights.length) insights.push({icon:'📊',text:'Keep logging. Patterns will emerge after 5+ days.',color:'var(--text2)'});
+
+  el.innerHTML=insights.map(i=>`<div class="feedback-block mb8" style="border-left-color:${i.color};"><span style="font-size:18px;">${i.icon}</span> <span class="small" style="color:${i.color};">${i.text}</span></div>`).join('');
+}
+
+/* ============================================================
+   DEEN TRACKER
+============================================================ */
+function renderDeen(){
+  renderTahajjud();
+  renderQuran();
+  renderPrayerTracker();
+}
+
+function renderTahajjud(){
+  const logs=DB.tahajjudLog||{};
+  // Streak
+  let streak=0;
+  for(let i=1;i<=365;i++){
+    const d=offsetDate(-i);
+    if(logs[d]===true) streak++;
+    else if(logs[d]===false) break;
+    else break;
+  }
+  // Total
+  const total=Object.values(logs).filter(v=>v===true).length;
+  // This week
+  let weekCount=0;
+  for(let i=0;i<7;i++){ if(logs[offsetDate(-i)]===true) weekCount++; }
+  document.getElementById('tahajjudStreak').textContent=streak;
+  document.getElementById('tahajjudTotal').textContent=total;
+  document.getElementById('tahajjudThis').textContent=weekCount+'/7';
+  const ring=document.getElementById('tahajjudRing');
+  if(ring){ if(streak>0) ring.classList.add('done-ring'); else ring.classList.remove('done-ring'); }
+  // Set date default
+  const dateEl=document.getElementById('tahajjudDate');
+  if(dateEl&&!dateEl.value) dateEl.value=today();
+  const targetEl=document.getElementById('tahajjudTarget');
+  if(targetEl) targetEl.value=DB.tahajjudTarget||'03:30';
+  // Heatmap
+  renderHeatmap('tahajjudHeatmap', logs, 30, v=>v===true?3:v===false?0:null);
+}
+
+function logTahajjud(done){
+  const d=document.getElementById('tahajjudDate').value||today();
+  const notes=document.getElementById('tahajjudNotes').value;
+  DB.tahajjudTarget=document.getElementById('tahajjudTarget').value;
+  DB.tahajjudLog[d]={done, notes};
+  if(done) addPoints(15,'Tahajjud prayed 🌙');
+  saveDB(); renderDeen();
+  showToast(done?'🌙 Tahajjud logged. May Allah accept it.':'Logged. Tomorrow insha\'Allah.');
+}
+
+function renderQuran(){
+  const logs=DB.quranLog||{};
+  // Streak
+  let streak=0;
+  for(let i=1;i<=365;i++){
+    const d=offsetDate(-i);
+    if(logs[d]&&logs[d].amount>0) streak++;
+    else break;
+  }
+  // Pages this month
+  const m=today().slice(0,7);
+  const monthPages=Object.entries(logs).filter(([d])=>d.startsWith(m)).reduce((a,[,v])=>a+(v.amount||0),0);
+  // Week
+  let weekDays=0;
+  for(let i=0;i<7;i++){ if(logs[offsetDate(-i)]&&logs[offsetDate(-i)].amount>0) weekDays++; }
+  document.getElementById('quranStreak').textContent=streak+'🔥';
+  document.getElementById('quranTotalPages').textContent=Math.round(monthPages);
+  document.getElementById('quranWeekScore').textContent=weekDays+'/7';
+  // Date default
+  const qd=document.getElementById('quranDate');
+  if(qd&&!qd.value) qd.value=today();
+  const qt=document.getElementById('quranTarget');
+  if(qt) qt.value=DB.quranTarget||2;
+  // Heatmap
+  renderHeatmap('quranHeatmap', logs, 30, v=>{
+    if(!v||!v.amount) return 0;
+    if(v.amount>=4) return 3;
+    if(v.amount>=2) return 2;
+    return 1;
+  });
+}
+
+function logQuran(){
+  const d=document.getElementById('quranDate').value||today();
+  const amount=parseFloat(document.getElementById('quranAmount').value)||0;
+  const time=document.getElementById('quranTime').value;
+  const tadabbur=parseInt(document.getElementById('quranTadabbur').value)||0;
+  const note=document.getElementById('quranNote').value;
+  DB.quranTarget=parseFloat(document.getElementById('quranTarget').value)||2;
+  if(!amount){showToast('Select an amount');return;}
+  DB.quranLog[d]={amount,time,tadabbur,note,logged:new Date().toISOString()};
+  addPoints(10,'Quran read 📖');
+  if(tadabbur>=2) addPoints(5,'Tadabbur bonus');
+  saveDB(); renderDeen(); showToast('📖 Quran logged. Barakallah feek.');
+}
+
+function renderHeatmap(containerId, logs, days, scoreFn){
+  const container=document.getElementById(containerId);
+  if(!container) return;
+  container.innerHTML='';
+  for(let i=days-1;i>=0;i--){
+    const d=offsetDate(-i);
+    const raw=logs[d];
+    const score=scoreFn(raw);
+    const cell=document.createElement('div');
+    cell.className='heat-cell heat-'+(score===null?0:score);
+    cell.title=formatDate(d)+(raw?` — score:${score}`:'');
+    cell.textContent=score>0?'✓':'';
+    container.appendChild(cell);
+  }
+}
+
+function renderPrayerTracker(){
+  const container=document.getElementById('prayerTracker');
+  if(!container) return;
+  const t=today();
+  if(!DB.prayerLog[t]) DB.prayerLog[t]={fajr:false,dhuhr:false,asr:false,maghrib:false,isha:false};
+  const prayers=['fajr','dhuhr','asr','maghrib','isha'];
+  const icons={fajr:'🌙',dhuhr:'☀️',asr:'🌤',maghrib:'🌅',isha:'🌙'};
+  container.innerHTML='';
+  prayers.forEach(p=>{
+    const done=DB.prayerLog[t][p];
+    const btn=document.createElement('button');
+    btn.className=`btn btn-sm ${done?'btn-purple':'btn-ghost'}`;
+    btn.innerHTML=`${icons[p]} ${p.charAt(0).toUpperCase()+p.slice(1)}`;
+    btn.onclick=function(){
+      DB.prayerLog[t][p]=!DB.prayerLog[t][p];
+      if(DB.prayerLog[t][p]) addPoints(3,'Prayer: '+p);
+      saveDB(); renderPrayerTracker();
+    };
+    container.appendChild(btn);
+  });
+}
+
+/* ============================================================
+   ROLES
+============================================================ */
+function renderRoles(){
+  const list=document.getElementById('rolesList'); list.innerHTML='';
+  DB.roles.forEach(r=>{
+    const sc={
+      'on-track':['badge-green','🟢'],
+      'needs-work':['badge-amber','🟡'],
+      'struggling':['badge-red','🔴']
+    };
+    const [cls,icon]=sc[r.status]||['badge-blue','🔵'];
+    const div=document.createElement('div'); div.className='role-card';
+    div.innerHTML=`<div class="role-header"><h2><span class="role-icon">${r.icon}</span>${r.name}</h2><span class="badge ${cls}">${icon} ${r.status.replace('-',' ')}</span></div>
+    <div class="grid2 mb8">
+      <div><div class="form-label">Current Focus</div><input type="text" value="${r.focus}" onchange="updateRole(${r.id},'focus',this.value)"></div>
+      <div><div class="form-label">Minimum Standard</div><input type="text" value="${r.min}" onchange="updateRole(${r.id},'min',this.value)"></div>
+    </div>
+    <div class="grid2 mb8">
+      <div><div class="form-label">Weekly Target</div><input type="text" value="${r.target}" onchange="updateRole(${r.id},'target',this.value)"></div>
+      <div><div class="form-label">Status</div><select onchange="updateRole(${r.id},'status',this.value)"><option ${r.status==='on-track'?'selected':''} value="on-track">On Track</option><option ${r.status==='needs-work'?'selected':''} value="needs-work">Needs Work</option><option ${r.status==='struggling'?'selected':''} value="struggling">Struggling</option></select></div>
+    </div>
+    <div class="form-group"><div class="form-label">Score (0-10)</div><input type="number" min="0" max="10" value="${r.score}" onchange="updateRole(${r.id},'score',parseInt(this.value)||0)"><div class="progress-bar mt4"><div class="progress-fill ${r.score>=7?'fill-green':r.score>=4?'fill-amber':'fill-red'}" style="width:${r.score*10}%"></div></div></div>
+    <div class="form-group"><div class="form-label">Notes</div><textarea onchange="updateRole(${r.id},'notes',this.value)">${r.notes||''}</textarea></div>`;
+    list.appendChild(div);
+  });
+}
+function updateRole(id,f,v){ const r=DB.roles.find(r=>r.id===id); if(r){ r[f]=v; saveDB(); } }
+
+/* ============================================================
+   NON-NEGOTIABLES
+============================================================ */
+function renderNN(){
+  const list=document.getElementById('nnEditList'); list.innerHTML='';
+  DB.nonNegotiables.forEach(nn=>{
+    const div=document.createElement('div'); div.className='task-item';
+    div.innerHTML=`<div style="flex:1;" class="row gap flex-wrap">
+      <input type="text" value="${nn.label}" style="flex:1;min-width:150px;" onchange="updateNN(${nn.id},'label',this.value)">
+      <select style="width:110px;" onchange="updateNN(${nn.id},'category',this.value)">
+        ${['faith','work','family','health','discipline'].map(c=>`<option ${nn.category===c?'selected':''}>${c}</option>`).join('')}
+      </select>
+      <label style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px;white-space:nowrap;"><input type="checkbox" ${nn.stoploss?'checked':''} onchange="updateNN(${nn.id},'stoploss',this.checked)"> Stop-loss</label>
+    </div><button class="reset-btn" onclick="removeNN(${nn.id})">×</button>`;
+    list.appendChild(div);
+  });
+  const stmt=document.getElementById('stopLossStatement');
+  if(stmt) stmt.value=DB.stopLossStatement||'';
+}
+function updateNN(id,f,v){ const nn=DB.nonNegotiables.find(n=>n.id===id); if(nn){ nn[f]=v; saveDB(); } }
+function addNN(){ DB.nonNegotiables.push({id:Date.now(),label:'New non-negotiable',category:'faith',done:false,stoploss:false}); saveDB(); renderNN(); }
+function removeNN(id){ DB.nonNegotiables=DB.nonNegotiables.filter(n=>n.id!==id); saveDB(); renderNN(); }
+function saveStopLoss(){ DB.stopLossStatement=document.getElementById('stopLossStatement').value; saveDB(); showToast('Stop-loss statement saved'); }
+
+/* ============================================================
+   TASKS
+============================================================ */
+let timerInterval=null, timerSeconds=25*60, timerRunning=false;
+function setTimer(m){ timerSeconds=m*60; timerRunning=false; clearInterval(timerInterval); updateTimerDisplay(); }
+function startTimer(){ if(timerRunning) return; timerRunning=true; timerInterval=setInterval(()=>{ if(timerSeconds>0){timerSeconds--;updateTimerDisplay();}else{clearInterval(timerInterval);timerRunning=false;addPoints(3,'Focus sprint complete');showToast('⏱ Sprint done! +3pts');} },1000); }
+function pauseTimer(){ timerRunning=false; clearInterval(timerInterval); }
+function resetTimer(){ pauseTimer(); timerSeconds=25*60; updateTimerDisplay(); }
+function updateTimerDisplay(){ const m=String(Math.floor(timerSeconds/60)).padStart(2,'0'),s=String(timerSeconds%60).padStart(2,'0'); document.getElementById('timerDisplay').textContent=m+':'+s; }
+function startFocusOn(title){ document.getElementById('timerTask').textContent='Task: '+title; showPage('tasks'); showToast('Timer ready for: '+title); }
+
+function addTask(){
+  const title=document.getElementById('newTaskTitle').value.trim();
+  if(!title){showToast('Enter task name');return;}
+  DB.tasks.push({id:Date.now(),title,action:document.getElementById('newTaskAction').value,deadline:document.getElementById('newTaskDeadline').value,time:document.getElementById('newTaskTime').value,urgency:document.getElementById('newTaskUrgency').value,resist:document.getElementById('newTaskResist').value,role:document.getElementById('newTaskRole').value,done:false,carryCount:0,created:today()});
+  saveDB();['newTaskTitle','newTaskAction','newTaskDeadline','newTaskResist'].forEach(id=>document.getElementById(id).value='');
+  renderTasks(); showToast('Task added');
+}
+
+let taskFilter='all';
+function filterTasks(f){ taskFilter=f; renderTasks(); }
+
+function renderTasks(){
+  const list=document.getElementById('taskList'); list.innerHTML='';
+  let tasks=[...DB.tasks];
+  if(taskFilter==='today') tasks=tasks.filter(t=>t.deadline===today());
+  if(taskFilter==='overdue') tasks=tasks.filter(t=>!t.done&&t.deadline&&t.deadline<today());
+  tasks.sort((a,b)=>{ if(a.done&&!b.done) return 1; if(!a.done&&b.done) return -1; return ({overdue:0,urgent:1,normal:2}[a.urgency]||2)-({overdue:0,urgent:1,normal:2}[b.urgency]||2); });
+  if(!tasks.length){list.innerHTML='<div class="muted small italic">No tasks.</div>';return;}
+  tasks.forEach(t=>{
+    const dl=t.deadline?daysLeft(t.deadline):null;
+    const div=document.createElement('div');
+    div.className=`task-item${t.done?' done':''}${t.urgency==='overdue'||(dl!==null&&dl<0)?' overdue':t.urgency==='urgent'?' urgent':''}`;
+    div.innerHTML=`<div class="task-check ${t.done?'checked':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
+    <div class="task-body"><div class="task-title">${t.title}</div>
+    <div class="task-meta">
+      <span class="badge ${t.role==='Faith / Deen'?'badge-purple':t.role==='Health / Gym'?'badge-green':'badge-blue'}">${t.role}</span>
+      ${dl!==null?`<span class="${dl<0?'red':dl===0?'amber':'muted'} small">${dl<0?Math.abs(dl)+' days overdue':dl===0?'Due today':dl+' days'}</span>`:''}
+      <span class="muted small">⏱ ${t.time}</span>
+      ${t.carryCount>0?`<span class="amber small">Carried ${t.carryCount}×</span>`:''}
+    </div>
+    ${t.action?`<div class="small mt4" style="color:var(--accent);">→ ${t.action}</div>`:''}
+    ${t.resist&&!t.done?`<div class="small mt4 italic muted">⚠ ${t.resist}</div>`:''}
+    </div>
+    <div class="row gap">${!t.done?`<button class="btn btn-ghost btn-sm" onclick="startFocusOn('${t.title.replace(/'/g,"\\'")}')">▶</button>`:''}<button class="reset-btn" onclick="removeTask(${t.id})">×</button></div>`;
+    list.appendChild(div);
+  });
+}
+
+function toggleTask(id){
+  const t=DB.tasks.find(t=>t.id===id); if(!t) return;
+  t.done=!t.done;
+  if(t.done){DB.tasksCompleted++; addPoints(10,'Task: '+t.title);}
+  else{DB.points-=10;if(DB.points<0)DB.points=0;saveDB();}
+  saveDB(); renderTasks();
+}
+function removeTask(id){ DB.tasks=DB.tasks.filter(t=>t.id!==id); saveDB(); renderTasks(); }
+
+/* ============================================================
+   REFLECTION
+============================================================ */
+function switchTab(el,id){
+  document.querySelectorAll('#page-reflect .tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
+  ['morning','evening'].forEach(t=>document.getElementById('tab-'+t).style.display='none');
+  document.getElementById('tab-'+id).style.display='block';
+}
+function saveMorning(){ const t=today(); DB.morningReflections[t]={m1:document.getElementById('m1').value,m2:document.getElementById('m2').value,m3:document.getElementById('m3').value,m4:document.getElementById('m4').value}; addPoints(5,'Morning intention locked'); saveDB(); }
+function saveEvening(){ const t=today(); const score=parseInt(document.getElementById('e7').value)||0; DB.eveningReflections[t]={e1:document.getElementById('e1').value,e2:document.getElementById('e2').value,e3:document.getElementById('e3').value,e4:document.getElementById('e4').value,e5:document.getElementById('e5').value,e6:document.getElementById('e6').value,score}; DB.dailyScores[t]=score; addPoints(8,'Evening reflection complete'); saveDB(); showToast('Day complete. '+score+'/10. Rest well.'); }
+
+/* ============================================================
+   QUICK CAPTURE
+============================================================ */
+function renderCapture(){
+  const list=document.getElementById('captureList');
+  if(!DB.captures.length){list.innerHTML='<div class="muted small italic">Nothing captured yet.</div>';return;}
+  list.innerHTML='';
+  DB.captures.forEach(c=>{
+    const div=document.createElement('div'); div.className='capture-item';
+    div.innerHTML=`<div><span class="badge badge-blue small">${c.type}</span> <span>${c.text}</span><div class="muted small">${formatDate(c.date)}</div></div>
+    <div class="row gap"><button class="btn btn-ghost btn-sm" onclick="captureToTask(${c.id})">→ Task</button><button class="reset-btn" onclick="removeCapture(${c.id})">×</button></div>`;
+    list.appendChild(div);
+  });
+}
+function addCapture(){ const text=document.getElementById('captureInput').value.trim(); if(!text){showToast('Type something');return;} DB.captures.push({id:Date.now(),text,type:document.getElementById('captureType').value,date:today()}); document.getElementById('captureInput').value=''; saveDB(); renderCapture(); }
+function removeCapture(id){ DB.captures=DB.captures.filter(c=>c.id!==id); saveDB(); renderCapture(); }
+function captureToTask(id){ const c=DB.captures.find(c=>c.id===id); if(!c) return; DB.tasks.push({id:Date.now(),title:c.text,action:'',deadline:'',time:'25 min',urgency:'normal',resist:'',role:'General',done:false,carryCount:0,created:today()}); DB.captures=DB.captures.filter(c2=>c2.id!==id); saveDB(); renderCapture(); showToast('Moved to tasks'); }
+
+/* ============================================================
+   WEEKLY
+============================================================ */
+function renderWeekly(){
+  const d=DB.goal12w;
+  document.getElementById('goal12w').value=d.text||'';
+  document.getElementById('goal12wStart').value=d.start||'';
+  document.getElementById('goal12wEnd').value=d.end||'';
+  document.getElementById('weekOf').value=DB.weekGoals.weekOf||'';
+  document.getElementById('wg1').value=DB.weekGoals.w1||'';
+  document.getElementById('wg2').value=DB.weekGoals.w2||'';
+  document.getElementById('wg3').value=DB.weekGoals.w3||'';
+  document.getElementById('weekWorking').value=DB.weekReview.working||'';
+  document.getElementById('weekSlipping').value=DB.weekReview.slipping||'';
+  document.getElementById('weekNext').value=DB.weekReview.next||'';
+}
+function save12Week(){ DB.goal12w={text:document.getElementById('goal12w').value,start:document.getElementById('goal12wStart').value,end:document.getElementById('goal12wEnd').value}; saveDB(); showToast('12-week goal saved'); }
+function saveWeekGoals(){ DB.weekGoals={weekOf:document.getElementById('weekOf').value,w1:document.getElementById('wg1').value,w2:document.getElementById('wg2').value,w3:document.getElementById('wg3').value}; saveDB(); showToast('Week goals saved'); }
+function saveWeekReview(){ DB.weekReview={working:document.getElementById('weekWorking').value,slipping:document.getElementById('weekSlipping').value,next:document.getElementById('weekNext').value}; saveDB(); showToast('Review saved'); }
+
+/* ============================================================
+   ANALYTICS
+============================================================ */
+function renderAnalytics(){
+  document.getElementById('a-streak').textContent=DB.streak+'🔥';
+  document.getElementById('a-points').textContent=DB.points;
+  document.getElementById('a-tasksCompleted').textContent=DB.tasksCompleted;
+  // 7-day scores
+  const snap=document.getElementById('weekSnapshot'); snap.innerHTML='';
+  for(let i=6;i>=0;i--){ const d=offsetDate(-i),score=DB.dailyScores[d]||0; const div=document.createElement('div'); div.className='row mb8 gap'; div.innerHTML=`<span style="width:60px;font-size:12px;color:var(--text2);">${formatDate(d)}</span><div class="progress-bar" style="flex:1;margin:0;"><div class="progress-fill ${score>=7?'fill-green':score>=4?'fill-amber':'fill-red'}" style="width:${score*10}%"></div></div><span style="width:24px;font-size:12px;color:var(--text2);">${score||'–'}</span>`; snap.appendChild(div); }
+  // Neglected roles
+  const neg=document.getElementById('neglectedAreas'); neg.innerHTML='';
+  [...DB.roles].sort((a,b)=>a.score-b.score).slice(0,4).forEach(r=>{ const div=document.createElement('div'); div.className='row mb8 gap'; div.innerHTML=`<span style="width:130px;font-size:13px;">${r.icon} ${r.name}</span><div class="progress-bar" style="flex:1;margin:0;"><div class="progress-fill ${r.score>=7?'fill-green':r.score>=4?'fill-amber':'fill-red'}" style="width:${r.score*10}%"></div></div><span class="small" style="width:40px;">${r.score}/10</span>`; neg.appendChild(div); });
+  // Rewards
+  const rl=document.getElementById('rewardsList'); rl.innerHTML='';
+  DB.rewards.forEach(r=>{ const unlocked=DB.points>=r.points; const div=document.createElement('div'); div.className='row mb8 gap'; div.innerHTML=`<span class="badge ${unlocked?'badge-green':'badge-amber'}">${unlocked?'🔓':'🔒'}</span><span style="flex:1;font-size:13px;">${r.label}</span><span class="gold small bold">${r.points} pts</span>${unlocked?`<button class="btn btn-green btn-sm" onclick="claimReward(${r.id})">Claim</button>`:`<span class="muted small">${r.points-DB.points} to go</span>`}`; rl.appendChild(div); });
+  // Deen stats
+  const m=today().slice(0,7);
+  const tahajjudMonth=Object.entries(DB.tahajjudLog||{}).filter(([d,v])=>d.startsWith(m)&&(v===true||(v&&v.done))).length;
+  const quranMonth=Object.entries(DB.quranLog||{}).filter(([d])=>d.startsWith(m)).reduce((a,[,v])=>a+(v.amount||0),0);
+  const fajrLoopCount=Object.keys(DB.fajrLoops||{}).length;
+  const bedLoopCount=Object.keys(DB.bedLoops||{}).length;
+  document.getElementById('an-tahajjud').textContent=tahajjudMonth;
+  document.getElementById('an-quranPages').textContent=Math.round(quranMonth);
+  document.getElementById('an-fajrLoops').textContent=fajrLoopCount;
+  if(document.getElementById('an-bedLoops')) document.getElementById('an-bedLoops').textContent=bedLoopCount;
+}
+function claimReward(id){ const r=DB.rewards.find(r=>r.id===id); if(!r) return; DB.points-=r.points; if(DB.points<0)DB.points=0; saveDB(); renderAnalytics(); showToast('🎉 Reward claimed: '+r.label); }
+
+/* ============================================================
+   SETTINGS
+============================================================ */
+function renderSettings(){
+  document.getElementById('settingName').value=DB.name||'';
+  const rl=document.getElementById('settingRewardsList'); rl.innerHTML='';
+  DB.rewards.forEach(r=>{ const div=document.createElement('div'); div.className='capture-item'; div.innerHTML=`<span>${r.label} — <span class="gold">${r.points} pts</span></span><button class="reset-btn" onclick="removeReward(${r.id})">×</button>`; rl.appendChild(div); });
+}
+function saveSettings(){ DB.name=document.getElementById('settingName').value||'Brother'; saveDB(); showToast('Settings saved'); }
+function addReward(){ const name=document.getElementById('rewardName').value.trim(),pts=parseInt(document.getElementById('rewardPts').value)||100; if(!name){showToast('Enter name');return;} DB.rewards.push({id:Date.now(),label:name,points:pts}); document.getElementById('rewardName').value=''; document.getElementById('rewardPts').value=''; saveDB(); renderSettings(); }
+function removeReward(id){ DB.rewards=DB.rewards.filter(r=>r.id!==id); saveDB(); renderSettings(); }
+
+/* ============================================================
+   RE-ENTRY
+============================================================ */
+function saveReEntry(){ DB.reEntries.push({date:today(),off:document.getElementById('reOff').value,slipped:document.getElementById('re1').value,matters:document.getElementById('re2').value,plan:document.getElementById('re3').value,restart:document.getElementById('re4').value}); DB.nonNegotiables.forEach(n=>n.done=false); addPoints(5,'Re-entry committed'); saveDB(); showToast('Re-entry committed. One step.'); setTimeout(()=>showPage('today'),1000); }
+function fullSystemReset(){ if(!confirm('Clear task history and scores? Structure stays.')) return; DB.tasks=[]; DB.captures=[]; DB.dailyScores={}; DB.morningReflections={}; DB.eveningReflections={}; DB.tasksCompleted=0; DB.streak=0; DB.points=0; DB.nonNegotiables.forEach(n=>n.done=false); saveDB(); showToast('Soft reset done.'); showPage('today'); }
+
+/* ============================================================
+   DATA
+============================================================ */
+function exportData(){ const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='personal-os-backup-'+today()+'.json'; a.click(); URL.revokeObjectURL(url); }
+function importData(){ document.getElementById('importFile').click(); }
+function loadImport(e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ try{ DB=JSON.parse(ev.target.result); saveDB(); location.reload(); }catch(e){showToast('Invalid file');} }; r.readAsText(f); }
+function dangerReset(){ if(!confirm('DELETE ALL DATA? Cannot be undone.')) return; localStorage.removeItem('pos_db_v2'); location.reload(); }
+
+/* ============================================================
+   MODAL
+============================================================ */
+function openModal(html){ document.getElementById('modalContent').innerHTML=html; document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal(e){ if(!e||e.target===document.getElementById('modalOverlay')) document.getElementById('modalOverlay').classList.remove('open'); }
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+function updateSidebar(){
+  const sd=document.getElementById('sidebarDate'),ss=document.getElementById('sidebarStreak'),sp=document.getElementById('sidebarPoints');
+  if(sd) sd.textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  if(ss) ss.textContent='🔥 '+DB.streak+' day streak';
+  if(sp) sp.textContent=DB.points;
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+function init(){
+  checkStreak(); updateSidebar(); renderToday();
+  document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  if(DB.stopLossStatement){ const m=document.getElementById('mvdList'); if(m) m.textContent=DB.stopLossStatement; }
+}
+
+init();
+</script>
+</body>
+</html>
