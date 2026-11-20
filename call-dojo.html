@@ -157,12 +157,63 @@ table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:ta
 th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
 th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 .ramp li{margin:6px 0}
+
+/* LEVEL PILL + RANK */
+.lvl{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:4px 12px 4px 4px;font-size:13px;font-weight:600}
+.lvl b{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-family:var(--mono);font-size:12px}
+.lvl .mini{width:60px;height:5px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.lvl .mini i{display:block;height:100%;background:var(--accent)}
+.rankhero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:center}
+.rankhero .big{width:96px;height:96px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--display);font-size:40px;font-weight:800}
+.rankhero h3{font-size:30px;font-weight:800}
+.gate{margin-top:8px;font-size:14px;padding:8px 12px;border-radius:8px;background:var(--warn-soft)}
+.gate b{color:var(--warn)}
+.ladder{display:grid;gap:6px}
+.rung{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-size:14px}
+.rung .n{font-family:var(--mono);font-weight:600;color:var(--ink3)}
+.rung.done{background:var(--good-soft);border-color:transparent}
+.rung.done .n{color:var(--good)}
+.rung.cur{border-color:var(--accent);background:var(--accent-soft)}
+.rung small{display:block;color:var(--ink3);font-size:12px}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.badge{border:1px dashed var(--line);border-radius:10px;padding:10px;font-size:13px;color:var(--ink3)}
+.badge strong{display:block;font-family:var(--display);font-size:15px;color:var(--ink3)}
+.badge.got{border-style:solid;border-color:var(--warn);background:var(--warn-soft);color:var(--ink)}
+.badge.got strong{color:var(--warn)}
+.skill{display:grid;grid-template-columns:110px minmax(0,1fr) 92px;gap:10px;align-items:center;font-size:14px;padding:5px 0}
+.skill .bar{height:10px;background:var(--surface2);border-radius:99px;position:relative;overflow:hidden}
+.skill .bar i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:99px}
+.skill .bar u{position:absolute;top:0;bottom:0;width:2px;background:var(--ink3)}
+.skill .d{font-family:var(--mono);font-size:12px;text-align:right}
+.up{color:var(--good)}.down{color:var(--live)}
+.xpfeed{font-size:13px;display:grid;gap:4px}
+.reward{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.levelup{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:color-mix(in srgb,var(--bg) 80%,transparent);padding:16px}
+.levelup .box{background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:28px;text-align:center;max-width:420px}
+.levelup h3{font-size:34px;font-weight:800;margin:6px 0}
+.nerves{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px;font-size:13px}
+.nerves button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-weight:700}
+
+/* LIVE MODES */
+.modes{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.modes button{border:0;background:var(--surface);padding:7px 14px;font-weight:600;font-size:13px;color:var(--ink2)}
+.modes button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.glance{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin-top:14px}
+.gcard{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:12px}
+.gcard .t{font-size:12px;color:var(--ink3);font-weight:600}
+.gcard .c{font-family:var(--display);font-size:19px;font-weight:700;line-height:1.25;margin-top:3px}
+.say .cue{font-family:var(--display);font-size:clamp(26px,3.4vw,38px);font-weight:800;line-height:1.15;color:var(--accent);margin-bottom:10px}
+.heard{font-size:15px;color:var(--ink2);background:var(--surface2);border-radius:8px;padding:12px;min-height:70px}
+.heard .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--live);margin-right:6px;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.heard .dot{animation:none}}
 </style>
 
 <header class="bar"><div class="wrap">
   <div class="brand"><h1>Call Dojo</h1><span>Princeps Digital</span></div>
+  <a class="lvl" href="#rank" id="lvl-pill" aria-label="Your rank"><b>1</b><span>Recruit</span><span class="mini"><i style="width:0"></i></span></a>
   <nav class="tabs" aria-label="Modes">
-    <a href="#live">Live call</a><a href="#drill">Drill</a><a href="#spar">Spar</a><a href="#library">Library</a><a href="#warmup">Warm-up</a><a href="#reps">Reps</a>
+    <a href="#live">Live call</a><a href="#drill">Drill</a><a href="#spar">Spar</a><a href="#library">Library</a><a href="#warmup">Warm-up</a><a href="#reps">Reps</a><a href="#rank">Rank</a>
   </nav>
 </div></header>
 
@@ -170,8 +221,9 @@ th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3
 
 <!-- LIVE -->
 <section class="view" id="v-live">
-  <div class="h2row"><h2>Live call</h2><span class="small muted">Keys: <kbd>1</kbd>–<kbd>9</kbd> pick what they said · <kbd>/</kbd> search · <kbd>Esc</kbd> back to opener</span></div>
-  <p class="lede">Keep this open while you dial. Tap what the prospect just said and the best response appears, with your own details filled in.</p>
+  <div class="h2row"><h2>Live call</h2>
+    <div class="modes" role="group" aria-label="Live mode"><button data-mode="glance">Glance</button><button data-mode="listen">Listen</button><button data-mode="tap">Tap</button></div></div>
+  <p class="lede" id="mode-help"></p>
   <div class="grid-ctx">
     <label class="f">Their name<input type="text" id="cx-name" placeholder="Sarah"></label>
     <label class="f">Course<input type="text" id="cx-course" placeholder="Level 3 Lash course"></label>
@@ -179,21 +231,30 @@ th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3
     <label class="f">Meeting slot<input type="text" id="cx-day" placeholder="Tuesday at 10"></label>
     <label class="f">Provider type<select id="cx-org"></select></label>
   </div>
+  <div class="glance" id="glance" hidden></div>
   <div class="stages" id="live-stages" role="group" aria-label="Call stage"></div>
-  <div class="live-grid">
+  <div class="live-grid" id="live-grid">
     <div>
       <div class="say" id="say"></div>
       <div class="calm"><span>Slow the first word</span><span>Breathe from the belly</span><span>Smile as you speak</span><span>Ask, then stop talking</span></div>
       <div class="orgnote" id="orgnote"></div>
     </div>
-    <div>
+    <div id="tap-side">
       <input type="search" id="live-search" placeholder="They said… (type any words)" aria-label="Search responses">
       <div class="eyebrow" style="margin:12px 0 6px">What did they say?</div>
       <div class="triggers" id="triggers"></div>
     </div>
+    <div id="listen-side" hidden>
+      <div class="row"><button class="btn live" id="listen-go">Start listening</button><span class="small muted" id="listen-state">Mic off</span></div>
+      <div class="eyebrow" style="margin:12px 0 6px">Heard</div>
+      <div class="heard" id="heard">Put the call on speaker near this device, then press Start listening. When the prospect speaks, the matching response appears on the left automatically.</div>
+      <div class="eyebrow" style="margin:12px 0 6px">Other close matches</div>
+      <div class="triggers" id="listen-alts"></div>
+    </div>
   </div>
   <div class="eyebrow" style="margin-top:22px">Log this dial</div>
   <div class="outcomes" id="outcomes"></div>
+  <div class="nerves" id="nerves" hidden><span>How nervous were you on that call?</span><button data-nv="1">1</button><button data-nv="2">2</button><button data-nv="3">3</button><button data-nv="4">4</button><button data-nv="5">5</button><span class="muted">1 = calm · 5 = terrified</span></div>
 </section>
 
 <!-- DRILL -->
@@ -312,6 +373,55 @@ th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3
     <div class="panel"><div class="eyebrow">The ramp</div><ol class="ramp small" id="ramp"></ol></div>
   </div>
 </section>
+
+<!-- RANK -->
+<section class="view" id="v-rank" hidden>
+  <div class="h2row"><h2>Rank</h2><span class="small muted" id="xp-total"></span></div>
+  <p class="lede">Every rep earns XP. Practice alone can't take you to the top ranks: each rank above Recruit also needs a real-world result, so the higher ranks need real dials, real meetings and real clients.</p>
+  <div class="panel rankhero" id="rankhero"></div>
+  <div class="two" style="margin-top:16px">
+    <div class="panel">
+      <div class="eyebrow">Skills</div>
+      <p class="small muted" style="margin:4px 0 10px">Scored out of 10. The bar is your recent average and the line marks where you started. Practice comes from Spar; real comes from calls and meetings you've had scored.</p>
+      <div class="row" style="margin-bottom:8px"><div class="modes" role="group" aria-label="Skill source"><button data-src="spar" aria-pressed="true">Practice</button><button data-src="real">Real calls</button></div></div>
+      <div id="skills"></div>
+      <div class="eyebrow" style="margin-top:16px">Nerves on real calls</div>
+      <div id="nerve-trend" class="small"></div>
+    </div>
+    <div class="panel">
+      <div class="eyebrow">The ladder</div>
+      <div class="ladder" id="ladder" style="margin-top:8px"></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px">
+    <div class="h2row"><div class="eyebrow">Badges</div><span class="small muted" id="badge-count"></span></div>
+    <div class="badges" id="badges" style="margin-top:10px"></div>
+  </div>
+  <div class="two" style="margin-top:16px">
+    <div class="panel">
+      <div class="eyebrow">Rewards you've promised yourself</div>
+      <p class="small muted" style="margin:4px 0 8px">Write the treat you'll get at each rank. Claim it only when the rank unlocks.</p>
+      <div id="rewards"></div>
+    </div>
+    <div class="panel" style="display:grid;gap:8px;align-content:start">
+      <div class="eyebrow">Score a real call or sales meeting</div>
+      <p class="small muted" style="margin:0">Paste the transcript of a real call or meeting, old or new. It's scored on the same scale as Spar so you can compare practice with real calls. Send me recordings in the chat and my evaluations appear here too.</p>
+      <div class="grid-ctx"><label class="f">Type<select id="ev-type"><option value="cold call">Cold call</option><option value="sales meeting">Sales meeting</option></select></label><label class="f">Date<input type="text" id="ev-date" placeholder="2023-06-14"></label></div>
+      <label class="f">Transcript<textarea id="ev-text" style="min-height:120px"></textarea></label>
+      <button class="btn primary" id="ev-go">Score it</button>
+      <div id="ev-out"></div>
+      <button class="btn" id="win-go">I signed a client 🎉</button>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px">
+    <div class="eyebrow">Real-world evaluations</div>
+    <div id="evals" style="margin-top:8px"></div>
+  </div>
+  <div class="panel" style="margin-top:16px">
+    <div class="eyebrow">How XP is earned</div>
+    <div class="xpfeed" id="xprules" style="margin-top:8px"></div>
+  </div>
+</section>
 </main>
 
 <script>
@@ -419,11 +529,49 @@ const ORGS={
  tuition:{label:"Private tuition centre",learner:"parents enquiring for their children, with term-time peaks",hook:"Peaks around exams and the start of term. Speed of reply to parents is everything.",q:"When a parent enquires, how quickly do they get a call back?"},
  business:{label:"Business & entrepreneurship programme",learner:"ambitious owners buying high-ticket cohorts through applications or sales calls",hook:"Priority B. They already run sales calls, so talk about show rates and qualified applications.",q:"How many applications turn into booked calls, and how many of those show up?"}
 };
+/* Short cues: what you glance at mid-call. Read the cue, say the line in your own words. */
+const CUES={gk1:"Julian, Princeps Digital. Is [name] about?",gk2:"Learner enquiries for [course]. Are they about?",gk3:"It is. Quick one. Are they about?",gk4:"When's best: mornings or after classes?",gk5:"Leave message + get direct line",gk6:"Who should I address it to?",gk7:"Fair. Who handles enrolments?",gk8:"Perfect! What happens after someone enquires?",gk9:"Who looks after filling courses?",
+op1:"Quick one: intakes full, or still looking?",op2:"Learner enquiries. Are your intakes full?",op3:"It's on your website. Bad time?",op4:"Bad time. Would [day] be better?",op5:"It is. 30 seconds, then you decide. Fair?",op6:"Just the next one, or after that too?",op7:"How are you handling enquiries now?",op8:"What's driving it: referrals or ads?",op9:"Not yet. Honest cold call. 30 seconds?",op10:"Based in [area]? Want a local provider.",op11:"Saw [detail]. What about non-enrolers?",op12:"Built a demo. Want to see it?",
+p1:"Enquiry-to-Enrolment Pipeline: planned, not scramble",p2:"Form → fast reply → booked call. Like yours?",p3:"Ads aren't enough. Which part's harder?",p4:"Automation for speed, people for judgement",p5:"Early stage, pilot terms. Show you in 15",p6:"No honest guarantee. I commit to the process",p7:"Only training providers. You get me",p8:"Easier to show you. [day]?",
+d1:"What happens next, and how fast?",d2:"Which course, and when does it start?",d3:"What happens when referrals go quiet?",d4:"How fast? What about second attempts?",d5:"All funded, or paid courses too?",d6:"What went wrong?",d7:"Too few, wrong people, or didn't enrol?",d8:"Tell me more about that.",d9:"Places left? What's one worth?",d10:"So if I've got this right… fair?",
+o1:"Full, or someone handling it?",o2:"What matters most: how, examples, cost?",o3:"Is that when recruiting starts?",o4:"No spend today. 15 mins to check fit",o5:"Depends on scope. That's the 15 mins",o6:"Do they handle follow-up too?",o7:"Do enquiries slip when it's busy?",o8:"Who else? Book it when they can join",o9:"Adding courses, or happy at this size?",o10:"Small is exactly who I work with",o11:"Fair. I'll show you before you commit",o12:"If it fits, yes. First: is there a fit?",o13:"When will things settle?",o14:"Apologies. Off my list. Next dial.",o15:"[website]. What will you look for?",o16:"What happens when referrals dip?",
+c1:"Would you be against 15 mins on [day]?",c2:"Tuesday morning or Wednesday afternoon?",c3:"Free review: 3 recommendations",c4:"Test enquiry live. 15 mins [day]?",c5:"Phone or video? Email? Agenda. Day.",c6:"Intake, enquiries, fit. Honest answer.",c7:"Headline now, specifics in 15",c8:"Pencil it in, cancel anytime. Thursday 10?",
+v1:"Name, reason, number twice",r1:"Sorry, let me say that properly.",r2:"Lost my thread. Are your intakes full?",r3:"Don't want to guess. I'll find out.",r4:"Silence. Count to three.",r5:"I've been talking. Your take?",r6:"Prin-seps. Latin for 'first'.",r7:"Ha, no. Very human.",
+x1:"South London. UK-wide. Happy to meet.",x2:"Only training providers. You get me.",x3:"Unfilled course: everyone loses.",x4:"I focus on enrolments. What outcome?",x5:"Perfect timing. What prompted it?",x6:"Name, number, can I say you sent me?",x7:"Summarise, then close.",x8:"Julian Ikeme. Princeps Digital."};
+/* Phrases that trigger each response in Listen mode */
+const KW={gk1:["who's calling","who is calling","who's speaking","can i ask who","who shall i say"],gk2:["regarding","what's it about","what is it about","what's it in relation to","in relation to"],gk4:["not available","not in today","in a meeting","in a class","teaching at the moment","out of the office","not here"],gk5:["take a message","leave a message","pass it on","pass on a message"],gk7:["don't take sales","no sales calls","we don't accept"],
+op2:["who is this","who's this","what's this about","what is this about"],op3:["get my number","got my number","where did you get"],op4:["busy","driving","bad time","in the middle of","can't talk","about to start","quick one"],op5:["sales call","are you selling"],op6:["we're full","we are full","fully booked","sold out","no spaces","all booked"],op7:["still got spaces","have spaces","few spaces","places left","still looking","some spaces","got availability"],op8:["doing fine","doing well","always busy","we're good","we're okay","we're alright"],op9:["do i know you","have we spoken","have we met"],
+p1:["what do you do","what is it you do","what exactly","what's princeps"],p2:["how does it work","how does that work","how would that work","how do you do that"],p3:["facebook","ads","instagram ads","meta","google ads"],p4:["ai","chatbot","automated","automation"],p5:["results","case studies","case study","who else","examples","worked with","clients have you"],p6:["guarantee","guaranteed","promise"],p8:["tell me more","go on","sounds interesting","interested in"],
+d1:["don't convert","don't enrol","not converting","don't sign up","no shows","ghost","drop off","go quiet"],d2:["not enough enquiries","not enough leads","not many enquiries","quiet at the moment","struggling to fill"],d3:["word of mouth","referrals","recommendations"],d6:["agency before","bad experience","got burned","waste of money","used an agency"],d7:["tried ads","tried facebook","didn't work","tried marketing","done ads"],
+o1:["not interested","no thanks","no thank you"],o2:["send me an email","send an email","email me","send me something","send me some information","send me info"],o3:["few months","call back later","next year","after christmas","new year","next month","in a while"],o4:["budget","can't afford","no money","too expensive","tight at the moment"],o5:["how much","cost","price","pricing","charge","fees"],o6:["already have","someone who does","we have an agency","already got","already use"],o7:["in-house","in house","ourselves","our team does"],o8:["partner","director","business partner","my boss","speak to my","run it by"],o9:["no capacity","can't take more","at capacity","enough learners","no room"],o10:["too small","small business","just me","only small"],o11:["don't trust","agencies are","scam","heard it before"],o12:["sell me","selling me","sales pitch"],o14:["stop calling","remove me","take me off","don't call"],o15:["your website","send me your website","website address"],
+c5:["that works","sounds good","let's do it","go on then","book it in","yeah okay"],c6:["what will we cover","what's the call about","what would we talk about","what's the meeting"],c7:["tell me now","just tell me","over the phone"],c8:["maybe","think about it","not sure","let me think"],
+r6:["prince","princess","what digital","say that again"],r7:["are you a robot","are you real","is this ai","is this a recording"],
+x1:["where are you based","where are you from","whereabouts are you"],x2:["how long have you","how long you been"],x3:["why training"],x4:["website","seo","social media"],x5:["looking for marketing","been looking for","need marketing","perfect timing"],x6:["my colleague","speak to my colleague","call my"],x8:["your name again","what's your name","what was your name"]};
+const GLANCE=["op1","op6","op7","op4","p1","p2","d1","o1","o2","o3","o5","o6","p5","c1","c8","r1"];
+
+/* ============ RANKS ============ */
+// gate(m) returns null when met, else a sentence describing what's still needed
+const LEVELS=[
+ {n:"Recruit",xp:0,gate:()=>null,desc:"You've started."},
+ {n:"Dialler",xp:150,gate:m=>m.dials>=10?null:`make ${10-m.dials} more real dials`,desc:"10 real dials"},
+ {n:"Opener",xp:400,gate:m=>m.dials>=50?null:`make ${50-m.dials} more real dials`,desc:"50 real dials"},
+ {n:"Conversationalist",xp:900,gate:m=>m.convs>=10?null:`have ${10-m.convs} more real conversations`,desc:"10 real conversations"},
+ {n:"Objection Handler",xp:1800,gate:m=>m.convs>=25&&m.sparObj>=6?null:(m.convs<25?`have ${25-m.convs} more real conversations`:"")+(m.convs<25&&m.sparObj<6?" and ":"")+(m.sparObj<6?"average 6+ for objections across your last 5 spars":""),desc:"25 conversations + objections skill 6+"},
+ {n:"Appointment Setter",xp:3200,gate:m=>m.meetings>=1?null:"book your first real meeting",desc:"First real meeting booked"},
+ {n:"Closer",xp:5500,gate:m=>m.meetings>=5?null:`book ${5-m.meetings} more real meetings`,desc:"5 real meetings"},
+ {n:"Rainmaker",xp:9000,gate:m=>m.wins>=1?null:"sign your first client",desc:"First client signed"},
+ {n:"Princeps",xp:14000,gate:m=>m.wins>=5?null:`sign ${5-m.wins} more clients`,desc:"5 clients. Latin for 'the first'."},
+ {n:"Legend",xp:25000,gate:m=>m.wins>=10&&m.dials>=1000?null:"reach 10 clients and 1,000 dials",desc:"10 clients and 1,000 dials"}
+];
+const XP_RULES=[["Each dial","5"],["Conversation","+10"],["Every 'no' collected","+10"],["Callback booked","+20"],["Meeting booked","+100"],["Nerves rated after a call","+2"],["Showing up (any dials that day)","+10"],["Hitting your daily target","+50"],["Drill card reviewed","2 (5 if you nailed it)"],["Spar call","20 + 3 × score (+30 if booked)"],["Warm-up done","15 (max 2 a day)"],["Transcript mined","10"],["Real call or meeting scored","50 + 10 × score"],["Client signed","500"]];
+
 const SRC_COLORS={};
 
 /* ============ STATE ============ */
 const LS="princeps-dojo-v1";
-let S={srs:{},custom:[],log:[],target:30,ctx:{}};
+let S={srs:{},custom:[],log:[],target:30,ctx:{},rev:{n:0,nailed:0},spars:[],warm:[],mined:0,evals:[],wins:[],lastLevel:0,
+  rewards:[{l:1,t:"Favourite takeaway"},{l:2,t:"Film night, no guilt"},{l:3,t:"A book you've wanted"},{l:5,t:"Something you've wanted for a while (set a budget)"},{l:7,t:"A proper celebration with the family"},{l:9,t:"The big one: you decide"}]};
+let COACH=[];
 try{const j=JSON.parse(localStorage.getItem(LS)||"null");if(j)S=Object.assign(S,j)}catch(e){}
 let dbRef=null,saveTimer=null,saving=Promise.resolve();
 function save(){
@@ -438,9 +586,11 @@ function save(){
   dbRef=db.doc("data/users/"+uid+"/dojo");
   const snap=await dbRef.get();
   if(snap.exists){S=Object.assign(S,JSON.parse(JSON.stringify(snap.data())));renderAll()}else save();
+  // Evaluations Claude writes from your recordings live in a separate doc, so the page never overwrites them
+  db.doc("data/users/"+uid+"/coach").onSnapshot(s=>{const d=s.exists?s.data():null;COACH=d&&Array.isArray(d.evals)?JSON.parse(JSON.stringify(d.evals)):[];renderGame(false);if(!$("#v-rank").hidden)renderRank()},()=>{});
 }catch(e){}})();
 
-const all=()=>BASE.map(a=>({id:a[0],stage:a[1],trig:a[2],say:a[3],alts:a[4],why:a[5],src:a[6]})).concat(S.custom||[]);
+const all=()=>BASE.map(a=>({id:a[0],stage:a[1],trig:a[2],say:a[3],alts:a[4],why:a[5],src:a[6],cue:CUES[a[0]]})).concat(S.custom||[]);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function fill(t){const c=S.ctx||{};return t.replace(/\[(first name|name)\]/gi,c.name||"[name]").replace(/\[course\]/gi,c.course||"[course]").replace(/\[area\]/gi,c.area||"[area]").replace(/\[day\]/gi,c.day||"[day]")}
@@ -449,11 +599,11 @@ function toast(m){const d=document.createElement("div");d.className="toast";d.te
 const today=()=>new Date().toISOString().slice(0,10);
 
 /* ============ ROUTING ============ */
-const VIEWS=["live","drill","spar","library","warmup","reps"];
+const VIEWS=["live","drill","spar","library","warmup","reps","rank"];
 function route(){const h=(location.hash||"#live").slice(1);const v=VIEWS.includes(h)?h:"live";
   VIEWS.forEach(x=>{$("#v-"+x).hidden=x!==v});
   document.querySelectorAll("nav.tabs a").forEach(a=>a.setAttribute("aria-current",a.getAttribute("href")==="#"+v?"page":"false"));
-  if(v==="drill")drillNext();if(v==="reps")renderReps();if(v==="library")renderLib();}
+  if(v==="drill")drillNext();if(v==="reps")renderReps();if(v==="library")renderLib();if(v==="rank")renderRank();}
 addEventListener("hashchange",route);
 
 /* ============ LIVE ============ */
@@ -466,7 +616,8 @@ function renderLive(){
   else list=list.filter(e=>e.stage===liveStage);
   $("#triggers").innerHTML=list.length?list.map((e,i)=>`<button class="trigbtn${liveSel===e.id?" on":""}" data-id="${e.id}"><span class="k">${i<9?i+1:""}</span><span>${esc(e.trig)}${liveQuery?` <span class="chip">${STAGES[e.stage]}</span>`:""}</span></button>`).join(""):`<p class="muted small">Nothing matches. Use a recovery line: "Good question, let me find out properly."</p>`;
   const e=all().find(x=>x.id===liveSel)||all().find(x=>x.id==="op1");
-  $("#say").innerHTML=`<div class="trig">When they say: <b>${esc(e.trig)}</b></div><div class="line">${hl(e.say)}</div>
+  applyMode();
+  $("#say").innerHTML=`<div class="trig">When they say: <b>${esc(e.trig)}</b></div>${e.cue?`<div class="cue">${esc(fill(e.cue))}</div>`:""}<div class="line"${e.cue?' style="font-size:17px;font-weight:500;font-family:var(--body)"':""}>${hl(e.say)}</div>
    ${e.alts&&e.alts.length?`<div class="alts">${e.alts.map(a=>`<div class="alt"><b>Or</b>${hl(a)}</div>`).join("")}</div>`:""}
    <div class="why"><span class="chip src">${esc(e.src||"Mine")}</span> ${esc(e.why||"")}</div>`;
   const o=ORGS[S.ctx.org||"beauty"];
@@ -474,13 +625,43 @@ function renderLive(){
   const tod=h<9?"Before 9am: owners are often at their desk before classes start. Good window.":h<12?"Morning: try reception, and ask when the owner is free.":h<14?"Lunchtime: short calls. Expect 'I'm busy' and book a callback.":h<16?"Afternoon: classes are often running. Expect gatekeepers.":h<18?"4–6pm: classes end and owners pick up. One of the best windows.":"Evening: voicemail likely. Leave the voicemail script.";
   $("#orgnote").innerHTML=`<b>${esc(o.label)}.</b> Learners: ${esc(o.learner)}. ${esc(o.hook)}<br><b>Ask:</b> “${esc(o.q)}”<br><b>Right now:</b> ${tod}`;
 }
+const MODE_HELP={
+ glance:"The 16 situations that come up on most calls, on one screen, with no tapping. Read the big cue and say it in your own words. Keep this up for your first week.",
+ listen:"Hands-free. Put the call on speaker near this device and press Start listening. The page hears the prospect and shows the matching response by itself. Nothing is recorded or saved. Speech is turned into text on screen and then discarded.",
+ tap:"Tap, or press 1–9, for what they said. Press / to search and Esc to go back to the opener. Read the big cue; the full line underneath is backup."};
+function applyMode(){const m=S.ctx.mode||"glance";
+  document.querySelectorAll(".modes [data-mode]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===m));
+  $("#mode-help").textContent=MODE_HELP[m];
+  $("#glance").hidden=m!=="glance";$("#live-grid").hidden=m==="glance";$("#live-stages").hidden=m!=="tap";
+  $("#tap-side").hidden=m!=="tap";$("#listen-side").hidden=m!=="listen";
+  if(m==="glance")$("#glance").innerHTML=GLANCE.map(id=>{const e=all().find(x=>x.id===id);return `<button class="gcard" data-gid="${id}"><div class="t">${esc(e.trig)}</div><div class="c">${esc(fill(e.cue||e.say))}</div></button>`}).join("");}
+document.querySelector(".modes").addEventListener("click",ev=>{const b=ev.target.closest("[data-mode]");if(!b)return;S.ctx.mode=b.dataset.mode;save();if(b.dataset.mode!=="listen"&&dict&&dictOwner==="live")dict.stop().catch(()=>{});renderLive()});
+$("#glance").addEventListener("click",ev=>{const b=ev.target.closest("[data-gid]");if(!b)return;liveSel=b.dataset.gid;liveStage=all().find(x=>x.id===liveSel).stage;S.ctx.mode="tap";renderLive()});
+
+/* Listen mode: match the last few seconds of speech against trigger phrases. Runs locally, so it's instant. */
+const KWRX=Object.fromEntries(Object.entries(KW).map(([id,arr])=>[id,arr.map(p=>({w:p.split(" ").length,rx:new RegExp("(^|[^a-z'])"+p.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"($|[^a-z'])","i")}))]));
+let heardBuf="",lastMatch=null;
+function matchHeard(text){const tail=text.split(/\s+/).slice(-18).join(" ").toLowerCase();
+  const scored=Object.entries(KWRX).map(([id,ps])=>[id,ps.reduce((s,p)=>s+(p.rx.test(tail)?p.w:0),0)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+  if(!scored.length)return;
+  if(scored[0][0]!==lastMatch){lastMatch=scored[0][0];liveSel=lastMatch;renderLive()}
+  $("#listen-alts").innerHTML=scored.slice(1,5).map(([id])=>{const e=all().find(x=>x.id===id);return `<button class="trigbtn" data-id="${id}"><span>${esc(e.trig)}</span></button>`}).join("")||`<p class="small muted">None</p>`;}
+function showHeard(t){$("#heard").innerHTML=`<span class="dot"></span>${esc(t.split(/\s+/).slice(-30).join(" "))}`}
+$("#listen-go").addEventListener("click",e=>{
+  if(!dict){toast("Listening needs Chrome or the Claude desktop app. Use Glance instead.");return}
+  if(dict.active()&&dictOwner==="live"){dict.stop().catch(()=>{});return}
+  heardBuf="";lastMatch=null;startDict("live",e.currentTarget)});
+$("#listen-alts").addEventListener("click",ev=>{const b=ev.target.closest("[data-id]");if(!b)return;liveSel=b.dataset.id;lastMatch=b.dataset.id;renderLive()});
+
 const OUTCOMES=[["noanswer","No answer"],["vm","Voicemail"],["gk","Gatekeeper"],["convo","Conversation"],["callback","Callback booked"],["no","Not interested"],["meeting","Meeting booked"]];
 $("#outcomes").innerHTML=OUTCOMES.map(([k,l])=>`<button data-out="${k}" class="${k==="meeting"?"win":""}">${l}</button>`).join("");
 $("#outcomes").addEventListener("click",ev=>{const b=ev.target.closest("[data-out]");if(!b)return;
   S.log.push({d:today(),t:Date.now(),o:b.dataset.out,org:S.ctx.org||""});save();
+  $("#nerves").hidden=["noanswer","vm"].includes(b.dataset.out);
   const n=S.log.filter(x=>x.d===today()).length;
   toast(b.dataset.out==="meeting"?`Meeting booked. Dial ${n} today.`:b.dataset.out==="no"?`That's one more no collected. Dial ${n}.`:`Logged. Dial ${n} of ${S.target}.`);
-  liveSel=null;liveStage="op";liveQuery="";$("#live-search").value="";renderLive();});
+  liveSel=null;liveStage="op";liveQuery="";lastMatch=null;$("#live-search").value="";renderLive();renderGame(true);});
+$("#nerves").addEventListener("click",ev=>{const b=ev.target.closest("[data-nv]");if(!b)return;const last=S.log[S.log.length-1];if(last){last.nv=+b.dataset.nv;save()}$("#nerves").hidden=true;toast("Noted. Watch this number fall over the weeks.");renderGame(true)});
 $("#live-stages").addEventListener("click",ev=>{const b=ev.target.closest("[data-stage]");if(!b)return;liveStage=b.dataset.stage;liveQuery="";$("#live-search").value="";
   const first=all().find(e=>e.stage===liveStage);liveSel=first?first.id:null;renderLive()});
 $("#triggers").addEventListener("click",ev=>{const b=ev.target.closest("[data-id]");if(!b)return;liveSel=b.dataset.id;renderLive();if(innerWidth<820)$("#say").scrollIntoView({behavior:"smooth",block:"start"})});
@@ -492,7 +673,7 @@ addEventListener("keydown",e=>{
   if(e.key==="Escape"){liveStage="op";liveSel=null;liveQuery="";$("#live-search").value="";$("#live-search").blur();renderLive();return}
   if(tag==="input"||tag==="textarea"||tag==="select")return;
   if(e.key==="/"){e.preventDefault();$("#live-search").focus();return}
-  if(/^[1-9]$/.test(e.key)){const b=document.querySelectorAll("#triggers .trigbtn")[+e.key-1];if(b)b.click()}
+  if(/^[1-9]$/.test(e.key)&&(S.ctx.mode||"glance")==="tap"){const b=document.querySelectorAll("#triggers .trigbtn")[+e.key-1];if(b)b.click()}
 });
 
 /* ============ DRILL (Leitner) ============ */
@@ -527,7 +708,7 @@ $("#drill-card").addEventListener("click",ev=>{const t=ev.target;
   else if(t.id==="dr-mic")startDict("drill",t);
   else if(t.dataset.rate!==undefined){const r=S.srs[drillCur.id]||{box:0,intro:today()};const g=+t.dataset.rate;
     r.box=g===0?0:g===1?Math.max(1,r.box):Math.min(5,r.box+1);r.due=Date.now()+IV[r.box]*864e5-36e5;if(g===0)r.due=Date.now()+6e4;
-    S.srs[drillCur.id]=r;save();drillNext()}});
+    S.srs[drillCur.id]=r;S.rev=S.rev||{n:0,nailed:0};S.rev.n++;if(g===2)S.rev.nailed++;save();drillNext();renderGame(true)}});
 $("#drill-deck").innerHTML=`<option value="all">Everything</option>`+Object.entries(STAGES).map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
 $("#drill-deck").addEventListener("change",drillNext);$("#drill-rapid").addEventListener("change",drillNext);
 $("#drill-listen").addEventListener("click",async()=>{const t=await tts();if(!t){toast("Audio isn't available in this view");return}
@@ -548,9 +729,10 @@ function startDict(owner,btn){
 }
 let partialBuf="";
 CL.use("dictation").then(d=>{if(!d)return;
-  d.onPartial(({text})=>{partialBuf=text;if(dictOwner==="spar")$("#sp-input").value=(sparDraft+" "+text).trim();if(dictOwner==="drill"){const s=$("#dr-said");if(s)s.innerHTML=`<div class="said">${esc((drillSaid+" "+text).trim())}</div>`}});
-  d.onFinal(({text})=>{partialBuf="";if(dictOwner==="spar"){sparDraft=(sparDraft+" "+text).trim();$("#sp-input").value=sparDraft}if(dictOwner==="drill"){drillSaid=(drillSaid+" "+text).trim();const s=$("#dr-said");if(s)s.innerHTML=`<div class="said">${esc(drillSaid)}</div>`}});
+  d.onPartial(({text})=>{partialBuf=text;if(dictOwner==="live"){const t=(heardBuf+" "+text).trim();showHeard(t);matchHeard(t)}if(dictOwner==="spar")$("#sp-input").value=(sparDraft+" "+text).trim();if(dictOwner==="drill"){const s=$("#dr-said");if(s)s.innerHTML=`<div class="said">${esc((drillSaid+" "+text).trim())}</div>`}});
+  d.onFinal(({text})=>{partialBuf="";if(dictOwner==="live"){heardBuf=(heardBuf+" "+text).trim().split(/\s+/).slice(-60).join(" ");showHeard(heardBuf);matchHeard(heardBuf)}if(dictOwner==="spar"){sparDraft=(sparDraft+" "+text).trim();$("#sp-input").value=sparDraft}if(dictOwner==="drill"){drillSaid=(drillSaid+" "+text).trim();const s=$("#dr-said");if(s)s.innerHTML=`<div class="said">${esc(drillSaid)}</div>`}});
   d.onState(({state})=>{const on=state==="listening"||state==="starting";$("#sp-mic").classList.toggle("on",on&&dictOwner==="spar");const m=$("#dr-mic");if(m)m.classList.toggle("on",on&&dictOwner==="drill");
+    if(dictOwner==="live"){$("#listen-go").textContent=on?"Stop listening":"Start listening";$("#listen-state").textContent=on?"Listening…":"Mic off"}
     if(state==="idle"&&dictOwner==="spar"&&sparAuto&&$("#sp-input").value.trim()){sparSend()}});
 });
 
@@ -603,12 +785,15 @@ async function endCall(){if(!sparOn)return;sparOn=false;sparCtl&&sparCtl.abort()
   try{
     const r=await sample.json(`You are an elite cold-calling coach for Julian, an introverted founder learning to cold call UK training providers for Princeps Digital (goal: book a 15-minute meeting; offer: an Enquiry-to-Enrolment Pipeline that turns interest into enquiries, booked consultations and enrolments; he has no case studies yet and must never make false claims). Be direct and specific, and encourage him without flattering.
 Score this practice call. Reply with only JSON:
-{"overall":0-10,"scores":{"opener":0-10,"clarity":0-10,"questions":0-10,"objections":0-10,"close":0-10,"brevity":0-10},"outcome":"short phrase","best_moment":"quote + why","fixes":[{"moment":"what the prospect said","you_said":"his words","try":"a better line in his voice, UK English"}],"habit":"one thing to practise next call","new_cards":[{"stage":"gk|op|pitch|disc|obj|close|rec|curve","trig":"what the prospect said","say":"ideal response","why":"short principle"}]}
+{"overall":0-10,"scores":{"opener":0-10,"clarity":0-10,"questions":0-10,"objections":0-10,"close":0-10,"brevity":0-10,"confidence":0-10},"outcome":"short phrase","best_moment":"quote + why","fixes":[{"moment":"what the prospect said","you_said":"his words","try":"a better line in his voice, UK English"}],"habit":"one thing to practise next call","new_cards":[{"stage":"gk|op|pitch|disc|obj|close|rec|curve","trig":"what the prospect said","say":"ideal response","why":"short principle"}]}
 Give 2-4 fixes and 1-3 new_cards, for situations from this call that his library may not cover.
+Scoring "confidence" from words only: penalise hedging (just, sort of, maybe, I think, sorry, if that's okay), apologising for calling, rambling, and asking permission repeatedly; reward short assertive statements, a direct ask for a specific time, calm recovery after a no, and holding his ground politely. Score 10s rarely. A 10 means elite professional level.
 
 TRANSCRIPT:
 ${transcript.slice(-12000)}`);
     const sc=r.scores||{};
+    const booked=/MEETING BOOKED/.test(transcript);
+    S.spars=S.spars||[];S.spars.push({t:Date.now(),d:today(),diff:+$("#sp-diff").value,overall:+r.overall||0,scores:sc,booked});save();renderGame(true);
     out.innerHTML=`<h3 style="margin-top:16px;font-size:22px">${esc(r.overall)}/10 · ${esc(r.outcome||"")}</h3>
      <div class="score">${Object.entries(sc).map(([k,v])=>`<div><strong>${esc(v)}</strong><span class="small muted">${esc(k)}</span></div>`).join("")}</div>
      <p><b>Best moment:</b> ${esc(r.best_moment||"")}</p>
@@ -643,6 +828,7 @@ Reply with only a JSON array of up to 15 objects: {"stage":"gk|op|pitch|disc|obj
 
 TRANSCRIPT:
 ${txt.slice(0,60000)}`,{modelTier:"default"});
+    S.mined=(S.mined||0)+1;save();renderGame(true);
     out.innerHTML=(Array.isArray(cards)?cards:[]).map((c,i)=>`<div class="entry"><div class="t">${esc(c.trig)}</div><div class="s">${esc(c.say)}</div><div class="meta"><span class="chip">${esc(STAGES[c.stage]||c.stage)}</span><span class="small muted">${esc(c.why)}</span><button class="btn sm" data-mine="${i}">Add</button></div></div>`).join("")+`<button class="btn" id="mine-all">Add all</button>`;
     out.onclick=ev=>{const b=ev.target.closest("[data-mine]");if(b){const c=cards[+b.dataset.mine];addCustom(c.stage,c.trig,c.say,c.why,src);b.disabled=true;b.textContent="Added";renderLib()}
       if(ev.target.id==="mine-all"){out.querySelectorAll("[data-mine]:not(:disabled)").forEach(x=>{const c=cards[+x.dataset.mine];addCustom(c.stage,c.trig,c.say,c.why,src);x.disabled=true;x.textContent="Added"});renderLib()}};
@@ -658,8 +844,8 @@ $("#reframes").innerHTML=REFRAMES.map(r=>`<div class="reframe">${esc(r[0])}<smal
 $("#stutter").innerHTML=STUTTER.map(s=>`<li>${esc(s)}</li>`).join("");
 let breathT=null;$("#breath-go").addEventListener("click",()=>{const b=$("#breath");if(breathT){clearInterval(breathT);breathT=null;b.textContent="Ready";b.classList.remove("in");$("#breath-go").textContent="Start breathing";return}
   const ph=["Breathe in","Hold","Breathe out","Hold"];let i=0,n=0;$("#breath-go").textContent="Stop";
-  const step=()=>{b.textContent=ph[i%4];b.classList.toggle("in",i%4<2);i++;if(i>=32){clearInterval(breathT);breathT=null;b.textContent="Done";b.classList.remove("in");$("#breath-go").textContent="Again"}};step();breathT=setInterval(step,4000)});
-let dialT=null;$("#dial-go").addEventListener("click",()=>{clearInterval(dialT);let s=60;const el=$("#dial-timer");el.textContent="1:00";
+  const step=()=>{b.textContent=ph[i%4];b.classList.toggle("in",i%4<2);i++;if(i>=32){clearInterval(breathT);breathT=null;S.warm=S.warm||[];S.warm.push(today());save();renderGame(true);b.textContent="Done";b.classList.remove("in");$("#breath-go").textContent="Again"}};step();breathT=setInterval(step,4000)});
+let dialT=null;$("#dial-go").addEventListener("click",()=>{clearInterval(dialT);let s=60;if(document.querySelectorAll("#voice-checks input:checked").length>=3){S.warm=S.warm||[];S.warm.push(today());save();renderGame(true)}const el=$("#dial-timer");el.textContent="1:00";
   dialT=setInterval(()=>{s--;el.textContent=`0:${String(s).padStart(2,"0")}`;if(s<=0){clearInterval(dialT);el.textContent="DIAL";location.hash="#live"}},1000)});
 
 /* ============ REPS ============ */
@@ -680,7 +866,94 @@ function renderReps(){const t=today(),L=S.log||[];const td=L.filter(x=>x.d===t);
   $("#days").innerHTML=`<thead><tr><th>Day</th><th>Dials</th><th>Convos</th><th>Callbacks</th><th>Meetings</th></tr></thead><tbody>${rows.join("")}</tbody>`;}
 $("#ramp").innerHTML=["<b>Days 1–3:</b> 20 dials a day. The only goal is to dial. Outcomes don't count.","<b>Days 4–7:</b> 30 dials a day. Goal: five real conversations a day. Spar for 10 minutes before each block.","<b>Week 2:</b> 40–50 dials a day in two blocks (9–10:30am and 4–5:30pm). Goal: first meeting booked.","<b>Week 3–4:</b> 60+ dials a day. Track connect rate → conversation rate → meeting rate. Fix the weakest step, one at a time.","<b>Every Friday:</b> listen back to two calls, add every new objection you heard to the Library, and drill it.","<b>Rule:</b> no dials means no judging yourself. Dials made means the day was a win, whatever happened on them."].map(x=>`<li>${x}</li>`).join("");
 
+/* ============ GAME ENGINE ============ */
+const SKILLS=["opener","clarity","questions","objections","close","brevity","confidence"];
+function streakOf(L){const days=new Set(L.map(x=>x.d));let s=0,d=new Date();const t=today();
+  for(let i=0;i<4000;i++){const k=d.toISOString().slice(0,10);if(days.has(k))s++;else if(k!==t)break;d.setDate(d.getDate()-1)}return s}
+function allEvals(){return (S.evals||[]).map(e=>Object.assign({src:"You"},e)).concat(COACH.map(e=>Object.assign({},e,{src:"Claude (coach)"})))}
+function metrics(){const L=S.log||[],c=o=>L.filter(x=>o.includes(x.o)).length;
+  const byDay={};L.forEach(x=>{byDay[x.d]=(byDay[x.d]||0)+1});
+  const sp=S.spars||[];const last5=sp.slice(-5).map(s=>+((s.scores||{}).objections)||0);
+  const warmDays={};(S.warm||[]).forEach(d=>{warmDays[d]=Math.min(2,(warmDays[d]||0)+1)});
+  return {L,dials:L.length,convs:c(["convo","callback","no","meeting"]),convo:c(["convo"]),nos:c(["no"]),callbacks:c(["callback"]),meetings:c(["meeting"]),
+    nv:L.filter(x=>x.nv).length,days:Object.keys(byDay).length,daysHit:Object.values(byDay).filter(n=>n>=S.target).length,
+    early:L.some(x=>new Date(x.t).getHours()<9),calm:L.some(x=>x.nv&&x.nv<=2),streak:streakOf(L),
+    sparObj:last5.length>=3?last5.reduce((a,b)=>a+b,0)/last5.length:0,spars:sp,rev:S.rev||{n:0,nailed:0},
+    warm:Object.values(warmDays).reduce((a,b)=>a+b,0),mined:S.mined||0,evals:allEvals(),wins:(S.wins||[]).length,
+    mastered:Object.values(S.srs).filter(r=>r.box>=4).length,masteredBase:BASE.filter(b=>(S.srs[b[0]]||{}).box>=4).length};}
+function xpOf(m){return m.dials*5+m.convo*10+m.nos*10+m.callbacks*20+m.meetings*100+m.nv*2+m.days*10+m.daysHit*50
+  +m.rev.n*2+m.rev.nailed*3+m.spars.reduce((a,s)=>a+20+3*(+s.overall||0)+(s.booked?30:0),0)+m.warm*15+m.mined*10
+  +m.evals.reduce((a,e)=>a+50+10*(+e.overall||0),0)+m.wins*500}
+function levelOf(m,xp){let lv=0,blocked=null;
+  for(let i=1;i<LEVELS.length;i++){if(xp<LEVELS[i].xp)break;const g=LEVELS[i].gate(m);if(g){blocked=g;break}lv=i}
+  return {lv,blocked}}
+const BADGES=[
+ ["First Dial","Made a real dial",m=>m.dials>=1],["Ice Breaker","First real conversation",m=>m.convs>=1],["Thick Skin","Collected your first no",m=>m.nos>=1],
+ ["Rejection Proof","10 no's collected",m=>m.nos>=10],["Bulletproof","50 no's collected",m=>m.nos>=50],["Foot in the Door","First callback booked",m=>m.callbacks>=1],
+ ["Booked","First real meeting booked",m=>m.meetings>=1],["Calendar Full","10 meetings booked",m=>m.meetings>=10],["Paid","Signed your first client",m=>m.wins>=1],
+ ["Century","100 real dials",m=>m.dials>=100],["Five Hundred","500 real dials",m=>m.dials>=500],["The Thousand","1,000 real dials",m=>m.dials>=1000],
+ ["On Target","Hit your daily dial target",m=>m.daysHit>=1],["Three in a Row","3-day dial streak",m=>m.streak>=3],["Full Week","7-day dial streak",m=>m.streak>=7],["Unbreakable","30-day dial streak",m=>m.streak>=30],
+ ["Early Bird","Dialled before 9am",m=>m.early],["Steady Voice","Rated your nerves 1 or 2 on a real call",m=>m.calm],
+ ["Sparring Partner","First spar",m=>m.spars.length>=1],["Sharp","Scored 8+ on a spar",m=>m.spars.some(s=>s.overall>=8)],["Survived Brutal","Booked a meeting on Brutal",m=>m.spars.some(s=>s.diff===3&&s.booked)],["Dojo Regular","25 spars",m=>m.spars.length>=25],
+ ["Memory Palace","100 drill reviews",m=>m.rev.n>=100],["Line Master","25 lines mastered",m=>m.mastered>=25],["Encyclopedia","Every core line mastered",m=>m.masteredBase>=BASE.length],
+ ["Magpie","Mined a transcript",m=>m.mined>=1],["Ritual","5 warm-ups",m=>m.warm>=5],["Mirror","Had a real call or meeting scored",m=>m.evals.length>=1]];
+function renderGame(check){const m=metrics(),xp=xpOf(m),{lv}=levelOf(m,xp),cur=LEVELS[lv],nx=LEVELS[lv+1];
+  const pct=nx?Math.min(100,Math.max(0,Math.round((xp-cur.xp)/(nx.xp-cur.xp)*100))):100;
+  $("#lvl-pill").innerHTML=`<b>${lv+1}</b><span>${cur.n}</span><span class="mini"><i style="width:${pct}%"></i></span>`;
+  const got=BADGES.filter(b=>b[2](m)).map(b=>b[0]);S.seenB=S.seenB||[];
+  const fresh=got.filter(b=>!S.seenB.includes(b));
+  if(S.lastLevel===undefined||S.lastLevel===null)S.lastLevel=0;
+  if(check&&lv>S.lastLevel){S.lastLevel=lv;S.seenB=got;save();levelUp(lv);return}
+  if(lv>S.lastLevel){S.lastLevel=lv;save()}
+  if(fresh.length){S.seenB=got;save();if(check)toast("Badge unlocked: "+fresh.join(", "))}}
+function levelUp(lv){const r=(S.rewards||[]).filter(x=>x.l===lv);const d=document.createElement("div");d.className="levelup";
+  d.innerHTML=`<div class="box"><div class="eyebrow">Rank up</div><h3>Level ${lv+1}: ${esc(LEVELS[lv].n)}</h3><p>${esc(LEVELS[lv].desc)}</p>${r.length?`<p><b>Reward unlocked:</b> ${r.map(x=>esc(x.t)).join(", ")}</p>`:""}<button class="btn primary">Keep going</button></div>`;
+  d.addEventListener("click",e=>{if(e.target.tagName==="BUTTON"||e.target===d)d.remove()});document.body.append(d)}
+let skillSrc="spar";
+function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}
+function renderRank(){const m=metrics(),xp=xpOf(m),{lv,blocked}=levelOf(m,xp),cur=LEVELS[lv],nx=LEVELS[lv+1];
+  $("#xp-total").textContent=`${xp.toLocaleString("en-GB")} XP`;
+  const pct=nx?Math.min(100,Math.round((xp-cur.xp)/(nx.xp-cur.xp)*100)):100;
+  $("#rankhero").innerHTML=`<div class="big">${lv+1}</div><div><div class="eyebrow">Your rank</div><h3>${cur.n}</h3>
+   ${nx?`<div class="meter" style="height:10px"><i style="width:${pct}%"></i></div><div class="small muted" style="margin-top:4px">${xp.toLocaleString("en-GB")} / ${nx.xp.toLocaleString("en-GB")} XP to <b>${nx.n}</b> · needs: ${esc(nx.desc)}</div>`:`<p>Top of the ladder. Set your own next mountain.</p>`}
+   ${blocked?`<div class="gate"><b>You have the XP.</b> To rank up you need to ${esc(blocked)}.</div>`:""}</div>`;
+  $("#ladder").innerHTML=LEVELS.map((L,i)=>`<div class="rung ${i<lv?"done":i===lv?"cur":""}"><span class="n">${i+1}</span><span><b>${L.n}</b><small>${esc(L.desc)}</small></span><span class="small muted">${L.xp.toLocaleString("en-GB")} XP</span></div>`).join("");
+  const items=(skillSrc==="spar"?m.spars:m.evals).filter(x=>x.scores);
+  $("#skills").innerHTML=items.length?SKILLS.map(k=>{const vals=items.map(x=>+x.scores[k]).filter(v=>!isNaN(v));if(!vals.length)return"";
+    const start=avg(vals.slice(0,5)),now=avg(vals.slice(-5)),d=now-start;
+    return `<div class="skill"><span>${k[0].toUpperCase()+k.slice(1)}</span><span class="bar"><i style="width:${now*10}%"></i><u style="left:${start*10}%"></u></span><span class="d">${now.toFixed(1)} <span class="${d>0.05?"up":d<-0.05?"down":"muted"}">${d>0.05?"▲":d<-0.05?"▼":"·"}${Math.abs(d).toFixed(1)}</span></span></div>`}).join("")+`<p class="small muted">Based on ${items.length} ${skillSrc==="spar"?"spar":"real"} call${items.length>1?"s":""}.</p>`
+    :`<p class="small muted">${skillSrc==="spar"?"Finish a Spar call to get your first scores.":"No real calls scored yet. Paste a transcript on the right, or send me your recordings."}</p>`;
+  const nv=m.L.filter(x=>x.nv).map(x=>x.nv);
+  $("#nerve-trend").innerHTML=nv.length?`First calls: <b>${avg(nv.slice(0,10)).toFixed(1)}</b> / 5 → recent: <b>${avg(nv.slice(-10)).toFixed(1)}</b> / 5 <span class="muted">(${nv.length} rated)</span>`:`<span class="muted">After each real conversation, rate how nervous you were (on the Live call page). This is the number that shows the fear fading.</span>`;
+  const got=BADGES.filter(b=>b[2](m));$("#badge-count").textContent=`${got.length} of ${BADGES.length}`;
+  $("#badges").innerHTML=BADGES.map(b=>`<div class="badge ${b[2](m)?"got":""}"><strong>${b[2](m)?"★ ":""}${esc(b[0])}</strong>${esc(b[1])}</div>`).join("");
+  $("#rewards").innerHTML=(S.rewards||[]).map((r,i)=>`<div class="reward"><span class="small"><b>Lv ${r.l+1}</b><br><span class="muted">${esc(LEVELS[r.l]?.n||"")}</span></span><input type="text" id="rw${i}" data-rw="${i}" value="${esc(r.t)}" aria-label="Reward for level ${r.l+1}">${r.claimed?`<span class="chip" style="background:var(--good-soft);color:var(--good)">Claimed</span>`:lv>=r.l?`<button class="btn sm primary" data-claim="${i}">Claim</button>`:`<span class="chip">Locked</span>`}</div>`).join("");
+  const ev=m.evals.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+  $("#evals").innerHTML=ev.length?ev.map(e=>`<div class="entry"><div class="row"><b>${esc(e.type||"call")}</b><span class="muted small">${esc(e.date||"")}</span><span class="chip">${esc(e.overall)}/10</span>${e.level?`<span class="chip">Playing at level ${esc(e.level)}</span>`:""}<span class="chip src">${esc(e.src)}</span></div>
+    ${e.summary?`<p class="small" style="margin:6px 0">${esc(e.summary)}</p>`:""}${(e.strengths||[]).length?`<p class="small" style="margin:4px 0"><b>Strengths:</b> ${e.strengths.map(esc).join(" · ")}</p>`:""}${(e.fixes||[]).length?`<p class="small" style="margin:4px 0"><b>Work on:</b> ${e.fixes.map(esc).join(" · ")}</p>`:""}</div>`).join("")
+    :`<p class="small muted">Nothing yet. Your 2023 and 2024 meetings become your baseline: the starting point you measure everything against.</p>`;
+  $("#xprules").innerHTML=XP_RULES.map(r=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0"><span>${r[0]}</span><b style="font-family:var(--mono)">${r[1]}</b></div>`).join("");}
+document.querySelector('#v-rank .modes').addEventListener("click",e=>{const b=e.target.closest("[data-src]");if(!b)return;skillSrc=b.dataset.src;b.parentNode.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderRank()});
+$("#rewards").addEventListener("change",e=>{const i=e.target.dataset.rw;if(i===undefined)return;S.rewards[+i].t=e.target.value;save()});
+$("#rewards").addEventListener("click",e=>{const b=e.target.closest("[data-claim]");if(!b)return;S.rewards[+b.dataset.claim].claimed=today();save();renderRank();toast("Enjoy it. You earned it.")});
+let winArm=0;$("#win-go").addEventListener("click",()=>{const b=$("#win-go");
+  if(Date.now()-winArm>4000){winArm=Date.now();b.textContent="Tap again to confirm";setTimeout(()=>{b.textContent="I signed a client 🎉"},4000);return}
+  winArm=0;S.wins=S.wins||[];S.wins.push({d:today()});save();b.textContent="I signed a client 🎉";toast("+500 XP. Get paid, then deliver.");renderGame(true);renderRank()});
+$("#ev-go").addEventListener("click",async()=>{const txt=$("#ev-text").value.trim();if(!sample||!txt)return;const out=$("#ev-out");out.innerHTML=`<p class="small muted">Scoring…</p>`;$("#ev-go").disabled=true;
+  try{const r=await sample.json(`You are an elite sales coach assessing Julian, founder of Princeps Digital (helps UK training providers fill courses via an Enquiry-to-Enrolment Pipeline). This is a REAL ${$("#ev-type").value} transcript. Assess it honestly against elite professional standards.
+For a sales meeting, read "opener" as rapport and agenda-setting and "close" as asking for the next step or the sale.
+"confidence" is judged from his words: hedging, apologising, rambling and over-explaining lower it; assertive questions, comfortable silences, clear asks and holding ground politely raise it.
+"level" is which rank he is playing at on this ladder: 1 Recruit, 2 Dialler, 3 Opener, 4 Conversationalist, 5 Objection Handler, 6 Appointment Setter, 7 Closer, 8 Rainmaker, 9 Princeps, 10 Legend.
+Reply with only JSON: {"overall":0-10,"level":1-10,"scores":{"opener":0-10,"clarity":0-10,"questions":0-10,"objections":0-10,"close":0-10,"brevity":0-10,"confidence":0-10},"summary":"2 sentences","strengths":["..",".."],"fixes":["specific thing to change, with a better line",".."]}
+
+TRANSCRIPT:
+${txt.slice(0,60000)}`);
+    S.evals=S.evals||[];S.evals.push({date:$("#ev-date").value.trim()||today(),type:$("#ev-type").value,overall:+r.overall||0,level:r.level,scores:r.scores||{},summary:r.summary||"",strengths:r.strengths||[],fixes:r.fixes||[]});
+    save();$("#ev-text").value="";out.innerHTML=`<p class="small"><b>${esc(r.overall)}/10</b>, playing at level ${esc(r.level)}. Added below.</p>`;renderGame(true);renderRank();
+  }catch(e){out.innerHTML=`<p class="small muted">Couldn't score it (${esc(e.code||"error")}). Try a shorter transcript.</p>`}
+  $("#ev-go").disabled=false});
+
 /* ============ BOOT ============ */
-function renderAll(){["name","course","area","day"].forEach(k=>$("#cx-"+k).value=S.ctx[k]||"");$("#cx-org").value=S.ctx.org||"beauty";$("#target").value=S.target;renderLive();route()}
+function renderAll(){["name","course","area","day"].forEach(k=>$("#cx-"+k).value=S.ctx[k]||"");$("#cx-org").value=S.ctx.org||"beauty";$("#target").value=S.target;renderLive();renderGame(false);route()}
 renderAll();
 </script>
