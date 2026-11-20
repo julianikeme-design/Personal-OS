@@ -13,20 +13,24 @@
   --body:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   --r:10px;
+  --c-today:#141823; --c-warm:#1d8a52; --c-drill:#2b3fd6; --c-spar:#7a3fd1; --c-live:#d43c2b; --c-reps:#b26b00; --c-rank:#a87800; --c-lib:#0f7f86; --c-guide:#5b6478;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0f1218; --surface:#171b24; --surface2:#1f2430; --line:#2c3242;
   --ink:#eceef4; --ink2:#a9afc0; --ink3:#727a8f;
   --accent:#8e9bff; --accent-ink:#0f1218; --accent-soft:#232a4d;
   --live:#ff6b5a; --live-soft:#3a1d1a; --good:#4cc98a; --good-soft:#15301f; --warn:#f0b54a; --warn-soft:#33270f;
+  --c-today:#eceef4; --c-warm:#4cc98a; --c-drill:#8e9bff; --c-spar:#b892ff; --c-live:#ff6b5a; --c-reps:#f0b54a; --c-rank:#f2c94c; --c-lib:#4fc6cc; --c-guide:#a9afc0;
   color-scheme:dark;}}
 :root[data-theme="dark"]{
   --bg:#0f1218; --surface:#171b24; --surface2:#1f2430; --line:#2c3242;
   --ink:#eceef4; --ink2:#a9afc0; --ink3:#727a8f;
   --accent:#8e9bff; --accent-ink:#0f1218; --accent-soft:#232a4d;
   --live:#ff6b5a; --live-soft:#3a1d1a; --good:#4cc98a; --good-soft:#15301f; --warn:#f0b54a; --warn-soft:#33270f;
+  --c-today:#eceef4; --c-warm:#4cc98a; --c-drill:#8e9bff; --c-spar:#b892ff; --c-live:#ff6b5a; --c-reps:#f0b54a; --c-rank:#f2c94c; --c-lib:#4fc6cc; --c-guide:#a9afc0;
   color-scheme:dark;}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;margin:0}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
 h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
@@ -158,6 +162,63 @@ th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
 th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 .ramp li{margin:6px 0}
 
+/* MODE COLOURS */
+nav.tabs a::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--c,var(--ink3));margin-right:6px;vertical-align:1px}
+#v-today{--c:var(--c-today)}#v-warmup{--c:var(--c-warm)}#v-drill{--c:var(--c-drill)}#v-spar{--c:var(--c-spar)}#v-live{--c:var(--c-live)}#v-reps{--c:var(--c-reps)}#v-rank{--c:var(--c-rank)}#v-library{--c:var(--c-lib)}#v-guide{--c:var(--c-guide)}
+.view>.h2row h2{display:flex;align-items:center;gap:10px}
+.view>.h2row h2::before{content:"";width:12px;height:28px;border-radius:4px;background:var(--c)}
+
+/* TODAY */
+.steps{display:grid;gap:10px;margin-top:6px}
+.step{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--sc);border-radius:var(--r);padding:14px 16px;text-decoration:none;color:var(--ink)}
+.step .num{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-size:22px;font-weight:800;background:var(--surface2);color:var(--sc)}
+.step.done .num{background:var(--sc);color:var(--surface)}
+.step h3{font-size:18px}
+.step p{margin:2px 0 0;font-size:13px;color:var(--ink2)}
+.step .st{font-family:var(--mono);font-size:13px;font-weight:600;white-space:nowrap}
+.step.done .st{color:var(--good)}
+.step.next{box-shadow:0 0 0 2px var(--sc)}
+.week{display:flex;gap:6px;flex-wrap:wrap}
+.week div{flex:1;min-width:38px;text-align:center;font-size:11px;color:var(--ink3)}
+.week i{display:block;height:34px;border-radius:6px;background:var(--surface2);margin-bottom:4px}
+.week i.part{background:color-mix(in srgb,var(--c-reps) 45%,var(--surface2))}
+.week i.hit{background:var(--good)}
+.newbie{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--accent-soft);border-radius:var(--r);padding:12px 16px;margin-bottom:14px}
+
+/* GAMES */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.tile{min-height:84px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px;font-size:14px;text-align:left}
+.tile.t{border-left:4px solid var(--c-spar)}
+.tile.c{border-left:4px solid var(--c-drill);font-weight:600}
+.tile.sel{border-color:var(--accent);background:var(--accent-soft)}
+.tile.ok{visibility:hidden}
+.tile.bad{border-color:var(--live);background:var(--live-soft)}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 14px;font-size:16px;font-weight:600}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--live);background:var(--live-soft)}
+.gbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+
+/* GUIDE */
+.toc{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.toc a{font-size:13px;padding:4px 10px;border:1px solid var(--line);border-radius:99px;color:var(--ink2);text-decoration:none}
+.guide h3{font-size:22px;margin:30px 0 8px;scroll-margin-top:90px}
+.guide h4{font-family:var(--display);font-size:16px;margin:16px 0 4px}
+.guide p,.guide li{max-width:72ch}
+.modemap{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.modecard{border:1px solid var(--line);border-top:5px solid var(--mc);border-radius:var(--r);background:var(--surface);padding:12px 14px;font-size:14px}
+.modecard b{font-family:var(--display);font-size:17px}
+.modecard .when{color:var(--ink2);margin-top:4px}
+.modecard .time{font-family:var(--mono);font-size:12px;color:var(--mc);margin-top:6px}
+.wire{border:2px dashed var(--line);border-radius:12px;padding:12px;background:var(--surface);display:grid;gap:8px;font-size:12px;color:var(--ink3)}
+.wire .blk{border:1px solid var(--line);border-radius:6px;padding:8px;background:var(--surface2);position:relative;min-height:30px}
+.wire .cols{display:grid;grid-template-columns:1.2fr 1fr;gap:8px}
+.co{position:absolute;top:-9px;left:-9px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:12px;display:grid;place-items:center;font-family:var(--mono)}
+ol.callouts{padding-left:22px}
+ol.callouts li{margin:6px 0}
+.faq dt{font-weight:600;margin-top:12px}
+.faq dd{margin:2px 0 0;color:var(--ink2);max-width:72ch}
+
 /* LEVEL PILL + RANK */
 .lvl{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:4px 12px 4px 4px;font-size:13px;font-weight:600}
 .lvl b{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-family:var(--mono);font-size:12px}
@@ -213,11 +274,23 @@ th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3
   <div class="brand"><h1>Call Dojo</h1><span>Princeps Digital</span></div>
   <a class="lvl" href="#rank" id="lvl-pill" aria-label="Your rank"><b>1</b><span>Recruit</span><span class="mini"><i style="width:0"></i></span></a>
   <nav class="tabs" aria-label="Modes">
-    <a href="#live">Live call</a><a href="#drill">Drill</a><a href="#spar">Spar</a><a href="#library">Library</a><a href="#warmup">Warm-up</a><a href="#reps">Reps</a><a href="#rank">Rank</a>
+    <a href="#today" style="--c:var(--c-today)">Today</a><a href="#warmup" style="--c:var(--c-warm)">Warm-up</a><a href="#drill" style="--c:var(--c-drill)">Drill</a><a href="#spar" style="--c:var(--c-spar)">Spar</a><a href="#live" style="--c:var(--c-live)">Live call</a><a href="#reps" style="--c:var(--c-reps)">Reps</a><a href="#rank" style="--c:var(--c-rank)">Rank</a><a href="#library" style="--c:var(--c-lib)">Library</a><a href="#guide" style="--c:var(--c-guide)">Guide</a>
   </nav>
 </div></header>
 
 <main class="wrap">
+
+<!-- TODAY -->
+<section class="view" id="v-today" hidden>
+  <div class="newbie" id="newbie" hidden><span><b>New here?</b> Read the guide first. It takes about 5 minutes and shows you what everything does.</span><a class="btn primary sm" href="#guide">Open the guide</a></div>
+  <div class="h2row"><h2>Today</h2><span class="small muted" id="today-date"></span></div>
+  <p class="lede">Do the five steps in order, from top to bottom. Each one turns green when it's done. Most days take about 25 minutes plus your dialling block.</p>
+  <div class="steps" id="steps"></div>
+  <div class="two" style="margin-top:18px">
+    <div class="panel"><div class="eyebrow">Last 7 days of dialling</div><div class="week" id="week" style="margin-top:10px"></div><p class="small muted" style="margin:8px 0 0">Green: target hit. Amber: some dials. Grey: none.</p></div>
+    <div class="panel"><div class="eyebrow">Your weakest skill right now</div><div id="focus" style="margin-top:8px"></div></div>
+  </div>
+</section>
 
 <!-- LIVE -->
 <section class="view" id="v-live">
@@ -261,13 +334,15 @@ th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3
 <section class="view" id="v-drill" hidden>
   <div class="h2row"><h2>Drill</h2><span class="small muted" id="drill-count"></span></div>
   <p class="lede">Spaced repetition. You see what the prospect says, answer out loud, then check. Lines you miss come back tomorrow; lines you know come back in days, then weeks. Ten minutes a day puts the whole library into your memory.</p>
+  <div class="row" style="margin-bottom:14px"><div class="modes" id="drill-modes" role="group" aria-label="Training type"><button data-g="fc" aria-pressed="true">Flashcards</button><button data-g="match">Match</button><button data-g="quiz">Quiz</button><button data-g="cloze">Fill the gap</button></div></div>
   <div class="drill-top">
     <label class="f" style="min-width:180px">Deck<select id="drill-deck"></select></label>
     <label class="row small" style="margin-top:16px"><input type="checkbox" id="drill-rapid"> Rapid fire (5-second clock)</label>
     <button class="btn sm" id="drill-listen" style="margin-top:16px">Listen to deck</button>
   </div>
-  <div class="boxes" id="drill-boxes"></div>
-  <div class="card" id="drill-card" style="margin-top:14px"></div>
+  <div id="fc-wrap"><div class="boxes" id="drill-boxes"></div>
+  <div class="card" id="drill-card" style="margin-top:14px"></div></div>
+  <div id="game" hidden></div>
 </section>
 
 <!-- SPAR -->
@@ -422,6 +497,159 @@ th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3
     <div class="xpfeed" id="xprules" style="margin-top:8px"></div>
   </div>
 </section>
+
+<!-- GUIDE -->
+<section class="view guide" id="v-guide" hidden>
+  <div class="h2row"><h2>Guide</h2><span class="small muted">The user manual</span></div>
+  <p class="lede">Everything the Dojo does and how to use it. If you only read one part, read <b>1. Start here</b> and <b>2. Your daily sequence</b>.</p>
+  <nav class="toc" id="toc" aria-label="Guide contents">
+    <a href="#guide" data-jump="g-start">1. Start here</a><a href="#guide" data-jump="g-day">2. Daily sequence</a><a href="#guide" data-jump="g-warm">3. Warm-up</a><a href="#guide" data-jump="g-drill">4. Drill and games</a><a href="#guide" data-jump="g-spar">5. Spar</a><a href="#guide" data-jump="g-live">6. Live call</a><a href="#guide" data-jump="g-reps">7. Reps</a><a href="#guide" data-jump="g-rank">8. Rank</a><a href="#guide" data-jump="g-lib">9. Library</a><a href="#guide" data-jump="g-claude">10. Claude and Drive</a><a href="#guide" data-jump="g-learn">11. Learning science</a><a href="#guide" data-jump="g-keys">12. Shortcuts</a><a href="#guide" data-jump="g-words">13. Words used</a><a href="#guide" data-jump="g-faq">14. Problems</a>
+  </nav>
+
+  <h3 id="g-start">1. Start here</h3>
+  <p>The Dojo trains you to cold call the way a gym trains strength: short, regular reps that get harder over time. It has nine pages. Each page has its own colour, which you'll see as a dot in the menu and a bar next to the page title, so you always know where you are.</p>
+  <div class="modemap" id="modemap"></div>
+
+  <h3 id="g-day">2. Your daily sequence</h3>
+  <p>Open the <b>Today</b> page every day and work down the five numbered steps. The next step is outlined; finished steps turn green.</p>
+  <ol class="callouts">
+    <li><b style="color:var(--c-warm)">Warm-up, 5 minutes.</b> Breathing, voice into your chest, read the reframes, start the 60-second clock.</li>
+    <li><b style="color:var(--c-drill)">Drill, 10 minutes.</b> Flashcards until nothing is due, or two brain games.</li>
+    <li><b style="color:var(--c-spar)">Spar, 2 calls.</b> Practice calls with the AI prospect. Read each debrief.</li>
+    <li><b style="color:var(--c-live)">Dial, your target.</b> Real calls with the Live call page open. Log every dial.</li>
+    <li><b style="color:var(--c-reps)">Reflect, 2 minutes.</b> Rate your nerves, then check Rank to see what moved.</li>
+  </ol>
+  <p>Steps 1–3 take about 25 minutes. On a bad day, do step 1 and step 4 only. Some dials always beat no dials.</p>
+
+  <h3 id="g-warm">3. Warm-up</h3>
+  <ol class="callouts">
+    <li>Press <b>Start breathing</b> and follow the circle for 2 minutes (in 4, hold 4, out 4, hold 4).</li>
+    <li>Tick the voice checks as you do them. Hum with your hand on your chest; if you can feel the buzz, your voice is coming from the right place.</li>
+    <li>Read the six reframes out loud.</li>
+    <li>Say your opener three times, then press <b>Start the 60-second clock</b>. When it reaches zero it jumps to Live call. Dial before it does.</li>
+  </ol>
+  <p>Finishing the breathing, or starting the clock after three voice checks, counts as a warm-up (+15 XP, up to twice a day).</p>
+
+  <h3 id="g-drill">4. Drill and brain games</h3>
+  <p>The Drill page has four training types. Pick one with the switch at the top. The <b>Deck</b> dropdown limits any of them to one stage of the call, such as Objections.</p>
+  <div class="wire" aria-hidden="true">
+    <div class="blk"><span class="co">1</span>Flashcards · Match · Quiz · Fill the gap</div>
+    <div class="blk"><span class="co">2</span>Deck ▾ &nbsp; ☐ Rapid fire &nbsp; [Listen to deck]</div>
+    <div class="blk"><span class="co">3</span>Not seen | Learning | 1 day | 3 days | 1 week | 2 weeks | Mastered</div>
+    <div class="blk" style="min-height:80px"><span class="co">4</span>THEY SAY: "Just send me an email"<br>[Show answer] [Hear it] [🎙 Record my answer]</div>
+    <div class="blk"><span class="co">5</span>[Missed it] [Roughly] [Nailed it]</div>
+  </div>
+  <ol class="callouts">
+    <li><b>Training type.</b> Flashcards build long-term memory. The games make the same lines quicker to recall.</li>
+    <li><b>Deck and options.</b> Rapid fire gives you 5 seconds before the answer shows. Listen to deck reads every line out loud, for the car or a walk.</li>
+    <li><b>Boxes.</b> Every line moves right as you get it right, and comes back less often. "Mastered" means it waits 5 weeks.</li>
+    <li><b>The card.</b> Say your answer out loud before you press Show answer. Saying it is what builds the memory; reading it doesn't.</li>
+    <li><b>Rate yourself honestly.</b> "Missed it" brings it back in a minute. "Nailed it" moves it to the next box.</li>
+  </ol>
+  <h4>The three brain games</h4>
+  <ul>
+    <li><b>Match</b>: 6 things prospects say and 6 cues, shuffled. Tap a pair to clear it. Beat your best time. A wrong pair adds 2 seconds.</li>
+    <li><b>Quiz</b>: 10 questions. Pick the right response out of four.</li>
+    <li><b>Fill the gap</b>: 10 cues with the key word missing. Type it. This is the hardest, because you have to produce the word rather than recognise it.</li>
+  </ul>
+
+  <h3 id="g-spar">5. Spar</h3>
+  <ol class="callouts">
+    <li>Choose the provider type, who answers, their mood and the difficulty. Start on <b>Warm-up</b> difficulty and move to Realistic once you're scoring 6+.</li>
+    <li>Press <b>Start call</b>. The prospect answers (out loud, if "Prospect speaks" is ticked).</li>
+    <li>Tap 🎙, say your line, then tap 🎙 again to send it. Or type and press Enter.</li>
+    <li>Press <b>Hang up and debrief</b> whenever you like. The call also ends if they hang up or agree to a meeting.</li>
+    <li>Read the debrief: scores, your best moment, better lines, and new cards. Tap <b>Add to library and drill</b> on the new cards you like.</li>
+  </ol>
+  <p>The first time you spar, the page asks permission to use Claude and your microphone. Each spar uses your Claude allowance.</p>
+
+  <h3 id="g-live">6. Live call</h3>
+  <p>Use this during real calls. It has three views; pick one with the switch at the top right.</p>
+  <div class="wire" aria-hidden="true">
+    <div class="blk"><span class="co">1</span>Glance · Listen · Tap</div>
+    <div class="blk"><span class="co">2</span>Their name · Course · Area · Meeting slot · Provider type</div>
+    <div class="cols">
+      <div class="blk" style="min-height:120px"><span class="co">3</span>BIG CUE: "Just the next one, or after that too?"<br>full line underneath · why it works</div>
+      <div class="blk" style="min-height:120px"><span class="co">4</span>What did they say?<br>1 Hello? · 2 Who is this? · 3 Busy…<br>(or Listen: heard words + matches)</div>
+    </div>
+    <div class="blk"><span class="co">5</span>Log this dial: No answer · Voicemail · Gatekeeper · Conversation · Callback · Not interested · Meeting booked</div>
+    <div class="blk"><span class="co">6</span>How nervous were you? 1 2 3 4 5</div>
+  </div>
+  <ol class="callouts">
+    <li><b>View switch.</b> <b>Glance</b> puts the 16 most common situations on one screen; read a cue, say it in your own words. <b>Listen</b> hears the prospect over speakerphone and shows the response by itself. <b>Tap</b> is the full list by stage, with 1–9 shortcuts and search.</li>
+    <li><b>Call details.</b> Fill these in before you dial. Every line uses them, so [name] becomes "Sarah".</li>
+    <li><b>The cue.</b> Read the big words, not the paragraph. The paragraph is there if you blank.</li>
+    <li><b>What they said.</b> In Tap view, press the number. In Listen view, the matches update by themselves.</li>
+    <li><b>Log the dial</b> the second you hang up. This feeds Reps, Rank and your streak.</li>
+    <li><b>Nerves.</b> After any conversation, tap how nervous you felt. Watching this number fall is the proof the fear is going.</li>
+  </ol>
+  <p><b>Which view when:</b> Week 1, use Glance. Once the cues feel familiar, try Listen. Use Tap when something unusual comes up and you need to search.</p>
+
+  <h3 id="g-reps">7. Reps</h3>
+  <p>Your daily numbers: dials, conversations, no's collected, meetings, streak and lines mastered. The table shows the last 14 days. Set your daily dial target at the top; the Today page and the On Target badge use it. The Ramp lists the targets for your first month.</p>
+
+  <h3 id="g-rank">8. Rank, XP and rewards</h3>
+  <ul>
+    <li><b>XP</b> comes from everything: dials, every no, meetings, drills, games, spars, warm-ups, scored calls. The full table is at the bottom of the Rank page.</li>
+    <li><b>Ranks</b> go from 1 Recruit to 10 Legend. Each one needs XP <i>and</i> a real result, like your first meeting or first client. If you have the XP but not the result, the Rank page tells you exactly what's missing.</li>
+    <li><b>Skills</b> are scored out of 10 by Claude after each spar or real call. The bar is your recent average; the thin line is where you started.</li>
+    <li><b>Badges</b> are milestones. Gold means earned.</li>
+    <li><b>Rewards</b>: type the treat you'll get at each rank. The Claim button appears when that rank unlocks. Only claim it then.</li>
+    <li><b>Score a real call</b>: paste a transcript of any real call or meeting, old or new, to get it scored on the same scale.</li>
+  </ul>
+
+  <h3 id="g-lib">9. Library</h3>
+  <p>Every line in the Dojo, grouped by stage of the call, with where it came from and why it works. Search it, play any line out loud, or add your own. <b>Mine a YouTube transcript</b> lets you paste a transcript and have Claude pull out the good moves, rewritten for UK training providers. Anything you add goes straight into your drill deck.</p>
+
+  <h3 id="g-claude">10. Working with Claude and your Drive</h3>
+  <p>The Dojo has a companion folder in your Google Drive: <a href="https://drive.google.com/drive/folders/1f_RgnfL4sCNQWoY4TyIc57Kf78JtsW7P" target="_blank" rel="noopener">Cold Call Transcripts</a>, with the <a href="https://docs.google.com/spreadsheets/d/1xc26X3P4V88N8cadSrK6lSvSxI2i6ZgteRlEc8siasE/edit" target="_blank" rel="noopener">Transcript Tracker</a> sheet inside it.</p>
+  <ol class="callouts">
+    <li>Log each YouTube video in the tracker and save its transcript as a doc (copy the template in the folder).</li>
+    <li>Set the row to <b>Ready for Claude</b> (it turns amber).</li>
+    <li>Each Friday, ask Claude in your coding session: "Mine the Ready for Claude rows." Claude adds the best lines to the Library for everyone, permanently.</li>
+    <li>For your own calls and meetings, put the transcript in "02 My calls and meetings" and ask Claude to score them. The scores appear on your Rank page as "Claude (coach)".</li>
+  </ol>
+
+  <h3 id="g-learn">11. How the Dojo uses the science of learning</h3>
+  <ul>
+    <li><b>Recall, not re-reading</b>: Drill makes you say the answer before you see it.</li>
+    <li><b>Spaced repetition</b>: the boxes bring each line back just before you'd forget it.</li>
+    <li><b>Chunking</b>: the Deck filter lets you master one stage of the call at a time.</li>
+    <li><b>Interleaving</b>: the "Everything" deck and the Spar "Surprise me" mood mix situations, as real calls do.</li>
+    <li><b>Focused and diffuse mode</b>: short daily sessions with breaks beat cramming.</li>
+    <li><b>Process over product</b>: the Today page judges the day by reps done, not by results.</li>
+  </ul>
+  <p>Log what you learn from the Learning How to Learn course on the Learning tab of the tracker, and Claude will turn it into features or drills.</p>
+
+  <h3 id="g-keys">12. Keyboard shortcuts (Live call, Tap view)</h3>
+  <div class="tblwrap"><table><thead><tr><th>Key</th><th>Does</th></tr></thead><tbody>
+    <tr><td><kbd>1</kbd>–<kbd>9</kbd></td><td>Pick what the prospect said</td></tr>
+    <tr><td><kbd>/</kbd></td><td>Jump to search</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Back to the opener</td></tr>
+    <tr><td><kbd>Enter</kbd></td><td>Send your line in Spar (Shift+Enter for a new line)</td></tr>
+  </tbody></table></div>
+
+  <h3 id="g-words">13. Words used in the Dojo</h3>
+  <dl class="faq">
+    <dt>Cue</dt><dd>The short version of a response, in big letters. Read it, then say the full line in your own words.</dd>
+    <dt>Stage</dt><dd>A part of the call: Gatekeeper, Opener, Explain, Discovery, Objections, Close, Voicemail, Recovery, Curveballs.</dd>
+    <dt>Deck</dt><dd>The set of lines you're drilling: everything, or one stage.</dd>
+    <dt>Box</dt><dd>How well you know a line, from Learning to Mastered. It decides when the line comes back.</dd>
+    <dt>Conversation</dt><dd>Any call where you spoke to the decision maker, whatever happened.</dd>
+    <dt>Gate</dt><dd>The real-world result a rank needs on top of XP.</dd>
+    <dt>Mining</dt><dd>Pulling usable lines out of a transcript.</dd>
+  </dl>
+
+  <h3 id="g-faq">14. Problems and fixes</h3>
+  <dl class="faq">
+    <dt>The microphone button does nothing or disappears</dt><dd>Voice needs Chrome or the Claude desktop app. If you said no to the microphone, open the page's Permissions menu to allow it. You can always type instead.</dd>
+    <dt>Spar or scoring says Claude isn't available</dt><dd>Open the Dojo on claude.ai and allow Claude when it asks. If you see "too many calls", wait a minute.</dd>
+    <dt>Listen mode doesn't pick up the prospect</dt><dd>Their voice has to come out of a speaker near your device. It can't hear headphones. Use Glance instead.</dd>
+    <dt>Listen mode shows the wrong card</dt><dd>It can react to your own words. Tap a card under "Other close matches", or switch to Glance.</dd>
+    <dt>Is my progress saved?</dt><dd>Yes, to your Claude account when you're signed in, and in this browser as a backup. It's private to you.</dd>
+    <dt>I logged the wrong outcome</dt><dd>One extra dial won't move your rank. Just carry on; there's no undo yet.</dd>
+  </dl>
+</section>
 </main>
 
 <script>
@@ -563,13 +791,13 @@ const LEVELS=[
  {n:"Princeps",xp:14000,gate:m=>m.wins>=5?null:`sign ${5-m.wins} more clients`,desc:"5 clients. Latin for 'the first'."},
  {n:"Legend",xp:25000,gate:m=>m.wins>=10&&m.dials>=1000?null:"reach 10 clients and 1,000 dials",desc:"10 clients and 1,000 dials"}
 ];
-const XP_RULES=[["Each dial","5"],["Conversation","+10"],["Every 'no' collected","+10"],["Callback booked","+20"],["Meeting booked","+100"],["Nerves rated after a call","+2"],["Showing up (any dials that day)","+10"],["Hitting your daily target","+50"],["Drill card reviewed","2 (5 if you nailed it)"],["Spar call","20 + 3 × score (+30 if booked)"],["Warm-up done","15 (max 2 a day)"],["Transcript mined","10"],["Real call or meeting scored","50 + 10 × score"],["Client signed","500"]];
+const XP_RULES=[["Each dial","5"],["Conversation","+10"],["Every 'no' collected","+10"],["Callback booked","+20"],["Meeting booked","+100"],["Nerves rated after a call","+2"],["Showing up (any dials that day)","+10"],["Hitting your daily target","+50"],["Drill card reviewed","2 (5 if you nailed it)"],["Brain game finished","10 + your score"],["Spar call","20 + 3 × score (+30 if booked)"],["Warm-up done","15 (max 2 a day)"],["Transcript mined","10"],["Real call or meeting scored","50 + 10 × score"],["Client signed","500"]];
 
 const SRC_COLORS={};
 
 /* ============ STATE ============ */
 const LS="princeps-dojo-v1";
-let S={srs:{},custom:[],log:[],target:30,ctx:{},rev:{n:0,nailed:0},spars:[],warm:[],mined:0,evals:[],wins:[],lastLevel:0,
+let S={revDays:{},games:{done:0,pts:0,days:{}},srs:{},custom:[],log:[],target:30,ctx:{},rev:{n:0,nailed:0},spars:[],warm:[],mined:0,evals:[],wins:[],lastLevel:0,
   rewards:[{l:1,t:"Favourite takeaway"},{l:2,t:"Film night, no guilt"},{l:3,t:"A book you've wanted"},{l:5,t:"Something you've wanted for a while (set a budget)"},{l:7,t:"A proper celebration with the family"},{l:9,t:"The big one: you decide"}]};
 let COACH=[];
 try{const j=JSON.parse(localStorage.getItem(LS)||"null");if(j)S=Object.assign(S,j)}catch(e){}
@@ -599,11 +827,11 @@ function toast(m){const d=document.createElement("div");d.className="toast";d.te
 const today=()=>new Date().toISOString().slice(0,10);
 
 /* ============ ROUTING ============ */
-const VIEWS=["live","drill","spar","library","warmup","reps","rank"];
-function route(){const h=(location.hash||"#live").slice(1);const v=VIEWS.includes(h)?h:"live";
+const VIEWS=["today","live","drill","spar","library","warmup","reps","rank","guide"];
+function route(){const h=(location.hash||"#today").slice(1);const v=VIEWS.includes(h)?h:"today";
   VIEWS.forEach(x=>{$("#v-"+x).hidden=x!==v});
   document.querySelectorAll("nav.tabs a").forEach(a=>a.setAttribute("aria-current",a.getAttribute("href")==="#"+v?"page":"false"));
-  if(v==="drill")drillNext();if(v==="reps")renderReps();if(v==="library")renderLib();if(v==="rank")renderRank();}
+  if(v==="drill")drillNext();if(v==="reps")renderReps();if(v==="library")renderLib();if(v==="rank")renderRank();if(v==="today")renderToday();}
 addEventListener("hashchange",route);
 
 /* ============ LIVE ============ */
@@ -635,7 +863,7 @@ function applyMode(){const m=S.ctx.mode||"glance";
   $("#glance").hidden=m!=="glance";$("#live-grid").hidden=m==="glance";$("#live-stages").hidden=m!=="tap";
   $("#tap-side").hidden=m!=="tap";$("#listen-side").hidden=m!=="listen";
   if(m==="glance")$("#glance").innerHTML=GLANCE.map(id=>{const e=all().find(x=>x.id===id);return `<button class="gcard" data-gid="${id}"><div class="t">${esc(e.trig)}</div><div class="c">${esc(fill(e.cue||e.say))}</div></button>`}).join("");}
-document.querySelector(".modes").addEventListener("click",ev=>{const b=ev.target.closest("[data-mode]");if(!b)return;S.ctx.mode=b.dataset.mode;save();if(b.dataset.mode!=="listen"&&dict&&dictOwner==="live")dict.stop().catch(()=>{});renderLive()});
+document.querySelector("#v-live .modes").addEventListener("click",ev=>{const b=ev.target.closest("[data-mode]");if(!b)return;S.ctx.mode=b.dataset.mode;save();if(b.dataset.mode!=="listen"&&dict&&dictOwner==="live")dict.stop().catch(()=>{});renderLive()});
 $("#glance").addEventListener("click",ev=>{const b=ev.target.closest("[data-gid]");if(!b)return;liveSel=b.dataset.gid;liveStage=all().find(x=>x.id===liveSel).stage;S.ctx.mode="tap";renderLive()});
 
 /* Listen mode: match the last few seconds of speech against trigger phrases. Runs locally, so it's instant. */
@@ -708,9 +936,9 @@ $("#drill-card").addEventListener("click",ev=>{const t=ev.target;
   else if(t.id==="dr-mic")startDict("drill",t);
   else if(t.dataset.rate!==undefined){const r=S.srs[drillCur.id]||{box:0,intro:today()};const g=+t.dataset.rate;
     r.box=g===0?0:g===1?Math.max(1,r.box):Math.min(5,r.box+1);r.due=Date.now()+IV[r.box]*864e5-36e5;if(g===0)r.due=Date.now()+6e4;
-    S.srs[drillCur.id]=r;S.rev=S.rev||{n:0,nailed:0};S.rev.n++;if(g===2)S.rev.nailed++;save();drillNext();renderGame(true)}});
+    S.srs[drillCur.id]=r;S.rev=S.rev||{n:0,nailed:0};S.rev.n++;if(g===2)S.rev.nailed++;S.revDays=S.revDays||{};S.revDays[today()]=(S.revDays[today()]||0)+1;save();drillNext();renderGame(true)}});
 $("#drill-deck").innerHTML=`<option value="all">Everything</option>`+Object.entries(STAGES).map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
-$("#drill-deck").addEventListener("change",drillNext);$("#drill-rapid").addEventListener("change",drillNext);
+$("#drill-deck").addEventListener("change",()=>setGame(gMode));$("#drill-rapid").addEventListener("change",drillNext);
 $("#drill-listen").addEventListener("click",async()=>{const t=await tts();if(!t){toast("Audio isn't available in this view");return}
   const lines=[];deckCards().slice(0,30).forEach(c=>{lines.push({text:"They say: "+c.trig.replace(/[()]/g,""),voice:"airy"});lines.push({text:fill(c.say).replace(/\[[^\]]+\]/g,"…"),voice:"buttery"})});
   t.speak(lines).catch(()=>{});toast("Playing the deck. Repeat each answer out loud.")});
@@ -879,10 +1107,10 @@ function metrics(){const L=S.log||[],c=o=>L.filter(x=>o.includes(x.o)).length;
     nv:L.filter(x=>x.nv).length,days:Object.keys(byDay).length,daysHit:Object.values(byDay).filter(n=>n>=S.target).length,
     early:L.some(x=>new Date(x.t).getHours()<9),calm:L.some(x=>x.nv&&x.nv<=2),streak:streakOf(L),
     sparObj:last5.length>=3?last5.reduce((a,b)=>a+b,0)/last5.length:0,spars:sp,rev:S.rev||{n:0,nailed:0},
-    warm:Object.values(warmDays).reduce((a,b)=>a+b,0),mined:S.mined||0,evals:allEvals(),wins:(S.wins||[]).length,
+    warm:Object.values(warmDays).reduce((a,b)=>a+b,0),games:S.games||{done:0,pts:0},mined:S.mined||0,evals:allEvals(),wins:(S.wins||[]).length,
     mastered:Object.values(S.srs).filter(r=>r.box>=4).length,masteredBase:BASE.filter(b=>(S.srs[b[0]]||{}).box>=4).length};}
 function xpOf(m){return m.dials*5+m.convo*10+m.nos*10+m.callbacks*20+m.meetings*100+m.nv*2+m.days*10+m.daysHit*50
-  +m.rev.n*2+m.rev.nailed*3+m.spars.reduce((a,s)=>a+20+3*(+s.overall||0)+(s.booked?30:0),0)+m.warm*15+m.mined*10
+  +m.rev.n*2+m.rev.nailed*3+(m.games.done||0)*10+(m.games.pts||0)+m.spars.reduce((a,s)=>a+20+3*(+s.overall||0)+(s.booked?30:0),0)+m.warm*15+m.mined*10
   +m.evals.reduce((a,e)=>a+50+10*(+e.overall||0),0)+m.wins*500}
 function levelOf(m,xp){let lv=0,blocked=null;
   for(let i=1;i<LEVELS.length;i++){if(xp<LEVELS[i].xp)break;const g=LEVELS[i].gate(m);if(g){blocked=g;break}lv=i}
@@ -896,7 +1124,7 @@ const BADGES=[
  ["Early Bird","Dialled before 9am",m=>m.early],["Steady Voice","Rated your nerves 1 or 2 on a real call",m=>m.calm],
  ["Sparring Partner","First spar",m=>m.spars.length>=1],["Sharp","Scored 8+ on a spar",m=>m.spars.some(s=>s.overall>=8)],["Survived Brutal","Booked a meeting on Brutal",m=>m.spars.some(s=>s.diff===3&&s.booked)],["Dojo Regular","25 spars",m=>m.spars.length>=25],
  ["Memory Palace","100 drill reviews",m=>m.rev.n>=100],["Line Master","25 lines mastered",m=>m.mastered>=25],["Encyclopedia","Every core line mastered",m=>m.masteredBase>=BASE.length],
- ["Magpie","Mined a transcript",m=>m.mined>=1],["Ritual","5 warm-ups",m=>m.warm>=5],["Mirror","Had a real call or meeting scored",m=>m.evals.length>=1]];
+ ["Magpie","Mined a transcript",m=>m.mined>=1],["Brain Trainer","10 brain games played",m=>(m.games.done||0)>=10],["Speed Demon","Cleared Match in under 30 seconds",m=>!!m.games.matchBest&&m.games.matchBest<30],["Ritual","5 warm-ups",m=>m.warm>=5],["Mirror","Had a real call or meeting scored",m=>m.evals.length>=1]];
 function renderGame(check){const m=metrics(),xp=xpOf(m),{lv}=levelOf(m,xp),cur=LEVELS[lv],nx=LEVELS[lv+1];
   const pct=nx?Math.min(100,Math.max(0,Math.round((xp-cur.xp)/(nx.xp-cur.xp)*100))):100;
   $("#lvl-pill").innerHTML=`<b>${lv+1}</b><span>${cur.n}</span><span class="mini"><i style="width:${pct}%"></i></span>`;
@@ -952,6 +1180,68 @@ ${txt.slice(0,60000)}`);
     save();$("#ev-text").value="";out.innerHTML=`<p class="small"><b>${esc(r.overall)}/10</b>, playing at level ${esc(r.level)}. Added below.</p>`;renderGame(true);renderRank();
   }catch(e){out.innerHTML=`<p class="small muted">Couldn't score it (${esc(e.code||"error")}). Try a shorter transcript.</p>`}
   $("#ev-go").disabled=false});
+
+/* ============ TODAY ============ */
+const MODES=[["Today","--c-today","#today","Every day, first thing. Shows your 5 steps.","1 min"],["Warm-up","--c-warm","#warmup","Before every dialling block.","5 min"],["Drill","--c-drill","#drill","Daily, to memorise lines. Flashcards and brain games.","10 min"],["Spar","--c-spar","#spar","Practice calls with an AI prospect, by voice.","2 calls"],["Live call","--c-live","#live","Open during real calls. Shows what to say.","while dialling"],["Reps","--c-reps","#reps","Your daily numbers and the 4-week ramp.","1 min"],["Rank","--c-rank","#rank","Level, XP, skills, badges, rewards, scored real calls.","2 min"],["Library","--c-lib","#library","Every line. Add your own or mine YouTube transcripts.","as needed"],["Guide","--c-guide","#guide","This manual.","5 min once"]];
+$("#modemap").innerHTML=MODES.map(m=>`<a class="modecard" href="${m[2]}" style="--mc:var(${m[1]});text-decoration:none;color:var(--ink)"><b>${m[0]}</b><div class="when">${m[3]}</div><div class="time">${m[4]}</div></a>`).join("");
+$("#toc").addEventListener("click",e=>{const a=e.target.closest("[data-jump]");if(!a)return;e.preventDefault();document.getElementById(a.dataset.jump).scrollIntoView({behavior:"smooth"})});
+function renderToday(){const t=today(),L=S.log||[];const dials=L.filter(x=>x.d===t);
+  const warm=(S.warm||[]).filter(d=>d===t).length,rev=(S.revDays||{})[t]||0,games=((S.games||{}).days||{})[t]||0,due=dueCards().length,spars=(S.spars||[]).filter(s=>s.d===t).length,nv=dials.some(x=>x.nv);
+  const drillPts=rev+games*5;
+  const steps=[["Warm-up","--c-warm","#warmup","Breathe, voice into your chest, reframes, 60-second clock.",warm>0,warm>0?"Done":"5 min"],
+   ["Drill","--c-drill","#drill",due?`${due} lines due. Do flashcards until clear, or play two brain games.`:"Nothing due. Play a brain game to stay sharp.",drillPts>=10||(due===0&&(rev>0||games>0)),`${Math.min(drillPts,10)}/10`],
+   ["Spar","--c-spar","#spar","Two practice calls with the AI prospect. Read the debrief.",spars>=2,`${Math.min(spars,2)}/2`],
+   ["Dial","--c-live","#live","Real calls with Live call open. Log every one.",dials.length>=S.target,`${dials.length}/${S.target}`],
+   ["Reflect","--c-reps","#rank","Rate your nerves after a conversation, then check your Rank.",nv,nv?"Done":"2 min"]];
+  const next=steps.findIndex(s=>!s[4]);
+  $("#steps").innerHTML=steps.map((s,i)=>`<a class="step ${s[4]?"done":""} ${i===next?"next":""}" href="${s[2]}" style="--sc:var(${s[1]})"><span class="num">${s[4]?"✓":i+1}</span><span><h3>${s[0]}</h3><p>${esc(s[3])}</p></span><span class="st">${s[5]}</span></a>`).join("");
+  $("#today-date").textContent=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+  const wk=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);const n=L.filter(x=>x.d===k).length;wk.push(`<div><i class="${n>=S.target?"hit":n?"part":""}" title="${n} dials"></i>${d.toLocaleDateString("en-GB",{weekday:"short"})}</div>`)}
+  $("#week").innerHTML=wk.join("");
+  const sp=(S.spars||[]).slice(-5).filter(x=>x.scores);
+  if(sp.length){const avgs=SKILLS.map(k=>[k,avg(sp.map(x=>+x.scores[k]).filter(v=>!isNaN(v)))]).filter(x=>x[1]!==null).sort((a,b)=>a[1]-b[1]);const w=avgs[0];
+    $("#focus").innerHTML=`<p style="margin:0"><b style="font-size:20px">${w[0][0].toUpperCase()+w[0].slice(1)}</b> · ${w[1].toFixed(1)}/10 over your last ${sp.length} spars.</p><p class="small muted">Focus on this in today's spars. ${({objections:"Drill the Objections deck first.",close:"Drill the Close deck, and ask for a specific day and time every call.",questions:"Ask one more question before you pitch.",brevity:"Keep every line under two sentences, then stop.",confidence:"Cut 'just', 'sorry' and 'maybe'. Make statements and ask for the meeting directly.",opener:"Drill the Opener deck with Rapid fire on.",clarity:"Use the Glance cues word for word for a day."})[w[0]]||""}</p>`}
+  else $("#focus").innerHTML=`<p class="small muted" style="margin:0">Finish a Spar call and your weakest skill shows here, with what to practise.</p>`;
+  $("#newbie").hidden=!!(L.length||(S.spars||[]).length||(S.rev||{}).n);}
+
+/* ============ BRAIN GAMES ============ */
+let gMode="fc",gState=null,gTimer=null;
+const cueOf=e=>fill(e.cue||e.say.split(/\s+/).slice(0,9).join(" ")+"…");
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function gamePool(){const d=deckCards().filter(e=>!/^\(/.test(e.trig));return d.length>=6?d:all().filter(e=>!/^\(/.test(e.trig))}
+function gameDone(pts,msg){S.games=S.games||{done:0,pts:0,days:{}};S.games.done++;S.games.pts+=pts;S.games.days=S.games.days||{};S.games.days[today()]=(S.games.days[today()]||0)+1;save();renderGame(true);
+  $("#game").insertAdjacentHTML("beforeend",`<div class="panel" style="margin-top:14px"><b>${msg}</b> <span class="muted">+${10+pts} XP</span><div class="row" style="margin-top:8px"><button class="btn primary" data-again>Play again</button></div></div>`)}
+function setGame(m){gMode=m;clearInterval(gTimer);document.querySelectorAll("#drill-modes [data-g]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===m));
+  $("#fc-wrap").hidden=m!=="fc";$("#game").hidden=m==="fc";$("#drill-rapid").parentNode.hidden=m!=="fc";$("#drill-listen").hidden=m!=="fc";
+  if(m==="fc"){drillNext();return}if(m==="match")startMatch();if(m==="quiz")startQuiz();if(m==="cloze")startCloze()}
+$("#drill-modes").addEventListener("click",e=>{const b=e.target.closest("[data-g]");if(b)setGame(b.dataset.g)});
+$("#game").addEventListener("click",e=>{if(e.target.closest("[data-again]"))setGame(gMode)});
+function startMatch(){const pick=shuffle(gamePool()).slice(0,6);const tiles=shuffle(pick.flatMap(e=>[{id:e.id,k:"t",x:e.trig},{id:e.id,k:"c",x:cueOf(e)}]));
+  gState={t0:Date.now(),pen:0,sel:null,left:6};
+  $("#game").innerHTML=`<div class="gbar"><span><b>Match</b> <span class="muted small">Pair what they say (purple) with your cue (blue).</span></span><span class="timer" id="g-t">0.0s</span></div><div class="tiles">${tiles.map((t,i)=>`<button class="tile ${t.k}" data-i="${i}" data-id="${t.id}" data-k="${t.k}">${esc(t.x)}</button>`).join("")}</div><p class="small muted">Best time: ${S.games&&S.games.matchBest?S.games.matchBest.toFixed(1)+"s":"none yet"}</p>`;
+  gTimer=setInterval(()=>{const el=$("#g-t");if(el)el.textContent=((Date.now()-gState.t0)/1000+gState.pen).toFixed(1)+"s"},100);
+  $("#game").querySelector(".tiles").onclick=e=>{const b=e.target.closest(".tile");if(!b||b.classList.contains("ok"))return;
+    if(!gState.sel){gState.sel=b;b.classList.add("sel");return}
+    const a=gState.sel;gState.sel=null;a.classList.remove("sel");if(a===b)return;
+    if(a.dataset.id===b.dataset.id&&a.dataset.k!==b.dataset.k){a.classList.add("ok");b.classList.add("ok");if(--gState.left===0){clearInterval(gTimer);const secs=(Date.now()-gState.t0)/1000+gState.pen;S.games=S.games||{done:0,pts:0,days:{}};const best=!S.games.matchBest||secs<S.games.matchBest;if(best)S.games.matchBest=secs;gameDone(best?5:2,`Cleared in ${secs.toFixed(1)}s${best?". New best!":"."}`)}}
+    else{gState.pen+=2;[a,b].forEach(x=>{x.classList.add("bad");setTimeout(()=>x.classList.remove("bad"),500)})}}}
+function startQuiz(){const pool=gamePool();const qs=shuffle(pool).slice(0,10);gState={qs,i:0,score:0};quizQ()}
+function quizQ(){const {qs,i}=gState;if(i>=qs.length){gameDone(gState.score,`Quiz: ${gState.score}/${qs.length}`);return}
+  const q=qs[i];const same=all().filter(e=>e.id!==q.id&&e.stage===q.stage&&!/^\(/.test(e.trig));const other=all().filter(e=>e.id!==q.id&&!/^\(/.test(e.trig));
+  const wrong=shuffle(same.length>=3?same:other).slice(0,3);const opts=shuffle([q,...wrong]);
+  $("#game").innerHTML=`<div class="gbar"><span><b>Quiz</b> <span class="muted small">Question ${i+1} of ${qs.length}</span></span><span class="timer">${gState.score}</span></div><div class="card" style="min-height:0"><div class="eyebrow">They say</div><div class="prompt">${esc(q.trig)}</div><div class="opts">${opts.map(o=>`<button class="opt" data-id="${o.id}">${esc(cueOf(o))}</button>`).join("")}</div><div id="q-after"></div></div>`;
+  $("#game").querySelector(".opts").onclick=e=>{const b=e.target.closest(".opt");if(!b||gState.answered===i)return;gState.answered=i;
+    const ok=b.dataset.id===q.id;if(ok)gState.score++;b.classList.add(ok?"right":"wrong");$("#game").querySelector(`.opt[data-id="${q.id}"]`).classList.add("right");
+    $("#q-after").innerHTML=`<p class="small">${hl(q.say)}</p><button class="btn primary" id="q-next">Next</button>`;$("#q-next").onclick=()=>{gState.i++;quizQ()};$("#q-next").focus()}}
+function startCloze(){const pool=gamePool().filter(e=>e.cue);gState={qs:shuffle(pool).slice(0,10),i:0,score:0};clozeQ()}
+function clozeQ(){const {qs,i}=gState;if(i>=qs.length){gameDone(gState.score*2,`Fill the gap: ${gState.score}/${qs.length}`);return}
+  const q=qs[i],cue=fill(q.cue);const words=cue.match(/[A-Za-z][A-Za-z'-]{3,}/g)||[cue];const key=words.slice().sort((a,b)=>b.length-a.length)[0];
+  const shown=esc(cue).replace(esc(key),`<span style="border-bottom:2px solid var(--accent);padding:0 18px;color:transparent">${"_".repeat(key.length)}</span>`);
+  $("#game").innerHTML=`<div class="gbar"><span><b>Fill the gap</b> <span class="muted small">${i+1} of ${qs.length} · hint: ${key.length} letters, starts with “${esc(key[0])}”</span></span><span class="timer">${gState.score}</span></div><div class="card" style="min-height:0"><div class="eyebrow">They say: ${esc(q.trig)}</div><div class="prompt">${shown}</div><form id="cz-f" class="row"><input type="text" id="cz-in" autocomplete="off" aria-label="Missing word" style="max-width:260px"><button class="btn primary">Check</button></form><div id="cz-after"></div></div>`;
+  $("#cz-in").focus();
+  $("#cz-f").onsubmit=e=>{e.preventDefault();if(gState.answered===i){gState.i++;clozeQ();return}gState.answered=i;
+    const ok=$("#cz-in").value.trim().toLowerCase().replace(/[^a-z'-]/g,"")===key.toLowerCase().replace(/[^a-z'-]/g,"");if(ok)gState.score++;
+    $("#cz-after").innerHTML=`<p>${ok?"<b style='color:var(--good)'>Correct.</b>":`<b style='color:var(--live)'>It was “${esc(key)}”.</b>`} ${esc(cue)}</p><p class="small muted">Press Enter for the next one.</p>`}}
 
 /* ============ BOOT ============ */
 function renderAll(){["name","course","area","day"].forEach(k=>$("#cx-"+k).value=S.ctx[k]||"");$("#cx-org").value=S.ctx.org||"beauty";$("#target").value=S.target;renderLive();renderGame(false);route()}
