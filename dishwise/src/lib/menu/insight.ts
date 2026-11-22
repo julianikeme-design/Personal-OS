@@ -37,7 +37,13 @@ export function buildInsight(item: MenuItem, dietary: DietaryPref[], cuisineHint
 
   if (item.description) summary.push({ text: `On the menu: “${item.description}”`, source: "menu" });
   for (const g of glossary.slice(0, 3)) summary.push({ text: `${g.name}: ${g.explain}`, source: "general" });
-  if (!item.description && glossary.length === 0) {
+  const nameIngredients = matchKeywords(item.name, INGREDIENT_WORDS);
+  if (!item.description && glossary.length === 0 && nameIngredients.length > 0) {
+    summary.push({
+      text: `No description on the menu, but the name suggests ${nameIngredients.slice(0, 4).join(", ")}. Ask your server for details.`,
+      source: "menu",
+    });
+  } else if (!item.description && glossary.length === 0) {
     summary.push({
       text: "The menu doesn't describe this dish and it isn't in our glossary yet. Ask your server what's in it.",
       source: "unknown",

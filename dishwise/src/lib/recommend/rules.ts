@@ -171,8 +171,10 @@ export function recommendWithRules(
     const nameTerms = findGlossaryTerms(adventure.item.name);
     const g = [...(nameTerms.length ? nameTerms : glossaryFor(adventure.item))].sort((a, b) => b.novelty - a.novelty)[0];
     if (adventure.insight.novelty >= 2 && g) {
-      const lead = nameTerms.includes(g) ? `A chance to try ${g.name}` : `Introduces you to ${g.name.toLowerCase()}`;
-      extra.push({ text: `${lead}. ${g.explain.split(". ")[0].replace(/\.$/, "")}.`, source: "general" });
+      const text = nameTerms.includes(g)
+        ? `A chance to try ${g.name}, a ${g.cuisine} dish most UK diners haven't had.`
+        : `Introduces you to ${g.name.toLowerCase()}, a ${g.cuisine} ingredient: ${g.flavour.slice(0, 2).join(" and ") || "a new flavour"}.`;
+      extra.push({ text, source: "general" });
     } else {
       extra.push({ text: "This menu is fairly familiar overall. This is the most different good match.", source: "general" });
     }

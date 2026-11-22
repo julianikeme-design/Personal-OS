@@ -51,7 +51,7 @@ export function Chip({
   return (
     <button
       type="button"
-      aria-pressed={selected}
+      aria-pressed={rest.role ? undefined : selected}
       className={cx(
         "inline-flex min-h-10 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition",
         selected ? "border-ink bg-ink text-bg" : "border-line bg-surface text-ink hover:border-faint",
@@ -74,7 +74,7 @@ export function OptionCard({
   return (
     <button
       type="button"
-      aria-pressed={selected}
+      aria-pressed={rest.role ? undefined : selected}
       className={cx(
         "w-full rounded-2xl border px-4 py-3.5 text-left transition",
         selected ? "border-ink bg-surface ring-1 ring-ink" : "border-line bg-surface hover:border-faint",

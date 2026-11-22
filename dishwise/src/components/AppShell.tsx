@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, type ReactNode } from "react";
 import { track } from "@/lib/client/analytics";
-import { getMeta, setMeta } from "@/lib/client/store";
+import { getMeta, setMeta, useHydrated, usePreferences } from "@/lib/client/store";
 import { IconBook, IconCompass, IconPassport, IconScan, IconUser } from "./icons";
 import { cx } from "./ui";
 
@@ -34,7 +34,10 @@ function VisitTracker() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = usePathname();
-  const hideNav = HIDE_NAV.some((r) => r.test(path));
+  const hydrated = useHydrated();
+  const [prefs] = usePreferences();
+  // First-time visitors see a clean Welcome screen without the tab bar.
+  const hideNav = HIDE_NAV.some((r) => r.test(path)) || (path === "/" && (!hydrated || !prefs.onboarded));
   const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
 
   return (
