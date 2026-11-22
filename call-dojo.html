@@ -95,6 +95,7 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-b
 .outcomes button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 11px;font-size:13px;font-weight:600}
 .outcomes button.win{border-color:var(--good);color:var(--good)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:9px 16px;border-radius:8px;font-size:14px;font-weight:600;z-index:20}
+.bufs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.bufs span{font-size:14px;font-weight:600;padding:6px 10px;border-radius:8px;background:var(--accent-soft);color:var(--accent)}
 .orgnote{margin-top:12px;font-size:13px;background:var(--warn-soft);color:var(--ink);border-radius:8px;padding:10px 12px}
 .orgnote b{color:var(--warn)}
 
@@ -314,12 +315,15 @@ ol.callouts li{margin:6px 0}
     <label class="f">Area<input type="text" id="cx-area" placeholder="Croydon"></label>
     <label class="f">Meeting slot<input type="text" id="cx-day" placeholder="Tuesday at 10"></label>
     <label class="f">Provider type<select id="cx-org"></select></label>
+    <label class="f">Call type<select id="cx-ct"><option value="cold">Cold call</option><option value="inbound">Inbound lead (speed to lead)</option><option value="meeting">Sales meeting</option></select></label>
   </div>
   <div class="glance" id="glance" hidden></div>
   <div class="stages" id="live-stages" role="group" aria-label="Call stage"></div>
   <div class="live-grid" id="live-grid">
     <div>
       <div class="say" id="say"></div>
+      <div class="eyebrow" style="margin-top:14px">Buffers: say one to buy two seconds</div>
+      <div class="bufs" id="buffers"></div>
       <div class="calm"><span>Slow the first word</span><span>Breathe from the belly</span><span>Smile as you speak</span><span>Ask, then stop talking</span></div>
       <div class="orgnote" id="orgnote"></div>
     </div>
@@ -363,6 +367,7 @@ ol.callouts li{margin:6px 0}
   <div class="spar-grid">
     <div class="panel" style="display:grid;gap:10px;align-content:start">
       <label class="f">Provider type<select id="sp-org"></select></label>
+      <label class="f">Call type<select id="sp-ct"><option value="cold">Cold call</option><option value="inbound">Inbound lead (they just opted in)</option><option value="meeting">Sales meeting (pitch the pilot)</option></select></label>
       <label class="f">Who answers<select id="sp-role"><option value="owner">The owner</option><option value="gatekeeper">Receptionist, then owner</option></select></label>
       <label class="f">Mood<select id="sp-mood">
         <option value="busy">Busy, wants you off the phone</option>
@@ -626,6 +631,7 @@ ol.callouts li{margin:6px 0}
     <li><b>Log the dial</b> the second you hang up. This feeds Reps, Rank and your streak.</li>
     <li><b>Nerves.</b> After any conversation, tap how nervous you felt. Watching this number fall is the proof the fear is going.</li>
   </ol>
+  <p><b>Call type</b> (in the call details): <b>Cold call</b>, <b>Inbound lead</b> (someone just opted in and you call within minutes) or <b>Sales meeting</b> (agenda, discovery from the Pilot Discovery Form, presenting the pilot, objections and the close). The stages, Glance cards and Listen matches all switch to suit. <b>Buffers</b> are always on screen under the cue: short phrases like "Fair question." that buy you two seconds to think, so you never sound like you're reading.</p>
   <p><b>Which view when:</b> Week 1, use Glance. Once the cues feel familiar, try Listen. Use Tap when something unusual comes up and you need to search.</p>
 
   <h3 id="g-reps">7. Reps</h3>
@@ -675,6 +681,7 @@ ol.callouts li{margin:6px 0}
 
   <h3 id="g-words">13. Words used in the Dojo</h3>
   <dl class="faq">
+    <dt>Buffer</dt><dd>A short, natural phrase you say while you think: "Fair question." or "That makes sense." It covers the gap so nobody hears you reading.</dd>
     <dt>Cue</dt><dd>The short version of a response, in big letters. Read it, then say the full line in your own words.</dd>
     <dt>Stage</dt><dd>A part of the call: Gatekeeper, Opener, Explain, Discovery, Objections, Close, Voicemail, Recovery, Curveballs.</dd>
     <dt>Deck</dt><dd>The set of lines you're drilling: everything, or one stage.</dd>
@@ -699,7 +706,8 @@ ol.callouts li{margin:6px 0}
 <script>
 const CL=(window.claude&&window.claude.use)?window.claude:{use:async()=>null};
 /* ============ CONTENT ============ */
-const STAGES={gk:"Gatekeeper",op:"Opener",pitch:"Explain",disc:"Discovery",obj:"Objections",close:"Close",vm:"Voicemail",rec:"Recovery",curve:"Curveballs"};
+const STAGES={buf:"Buffers",gk:"Gatekeeper",agenda:"Agenda",op:"Opener",pitch:"Explain",disc:"Discovery",present:"Present",obj:"Objections",close:"Close",next:"Next steps",vm:"Voicemail",rec:"Recovery",curve:"Curveballs"};
+const CALLTYPES={cold:"Cold call",inbound:"Inbound lead",meeting:"Sales meeting"};
 const LIVE_STAGES=["gk","op","pitch","disc","obj","close","rec","curve","vm"];
 // [id, stage, theySay, youSay, alts[], why, source]
 const BASE=[
@@ -789,7 +797,60 @@ const BASE=[
 ["x5","curve","Actually, we're looking for marketing help right now","Perfect timing then. What prompted that?",["Let's get fifteen minutes in. When's soonest for you?"],"Don't oversell a warm lead. Ask one question, then book.","Mine"],
 ["x6","curve","Call my colleague instead","Of course. What's their name and best number? And can I say you suggested I call?",[],"A referral from inside the company is gold.","Mine"],
 ["x7","curve","(They talk for ages)","(Let them.) … So if I've got this right, [summary]. Is that fair? … Then it's worth fifteen minutes properly. [day]?",[],"Talkers sell themselves. Summarise and close.","Mine"],
-["x8","curve","What's your name again?","Julian. Julian Ikeme, from Princeps Digital.",[],"Say it slowly and proudly. Your name is your brand.","Mine"]
+["x8","curve","What's your name again?","Julian. Julian Ikeme, from Princeps Digital.",[],"Say it slowly and proudly. Your name is your brand.","Mine"],
+["b1","buf","(They raise a concern)","Fair question.",[],"Buys you two seconds and tells them you're not rattled.","Buffer","all"],
+["b2","buf","(They push back)","That makes sense. Can I ask what's behind that?",[],"Agree with the feeling, then find the real reason.","Buffer","all"],
+["b3","buf","(You need a second to think)","Good question. Let me think about that properly.",[],"A pause you announce sounds considered, not stuck.","Buffer","all"],
+["b4","buf","(They say something surprising)","Interesting. Tell me a bit more about that.",[],"Keeps them talking while you work out your answer.","Buffer","all"],
+["b5","buf","(They challenge you)","Totally fair. I'd probably ask the same.",[],"Shows you're secure. Then answer calmly.","Buffer","all"],
+["b6","buf","(They're vague)","When you say [their word], what do you mean exactly?",[],"Their own word, played back, makes them explain.","Buffer","all"],
+["b7","buf","(They ask the price too early)","Happy to cover that. Can I ask a couple of questions first, so I give you the right number?",[],"Price without context always sounds expensive.","Buffer","all"],
+["b8","buf","(They go quiet)","What's going through your mind?",[],"Invites the hidden objection out into the open.","Buffer","all"],
+["b9","buf","(You lost your thread)","Let me back up a step.",[],"A clean reset. Nobody minds.","Buffer","all"],
+["b10","buf","(They make a strong point)","You're right about that.",[],"Agreeing where they're right earns trust for where you disagree.","Buffer","all"],
+
+["i1","op","(They opted in minutes ago) You call straight away","Hi [name], it's Julian from Princeps Digital. You just asked about [offer] on our page a few minutes ago, so I thought I'd ring while it's fresh. Is now okay for two minutes?",["Hi [name], Julian here. You filled in our form about [offer]. Have I caught you at an okay time?"],"Speed to lead: calling within five minutes is when people are most likely to pick up and remember you.","Speed to lead","inbound"],
+["i2","op","Who is this? / I don't remember","No worries. You filled in a form about [offer] earlier. It's Julian from Princeps. Did I catch you at a bad time?",[],"Remind them without making them feel silly.","Speed to lead","inbound"],
+["i3","op","I was just browsing","Totally fine, most people are at that stage. What made you click on it?",[],"Lowers the pressure and gets their reason.","Speed to lead","inbound"],
+["i4","disc","(Qualify) Why now?","What made you look into this now?",["What are you hoping will change?"],"Their reason is your pitch.","Speed to lead","inbound"],
+["i5","disc","(Qualify) Timing","Is this something you want sorted in the next few weeks, or more of a later thing?",[],"Separates hot leads from future ones.","Speed to lead","inbound"],
+["i6","close","(They're a fit) Book the meeting","Sounds like it's worth a proper look. I've got [day] free. Shall I book you in for 15 minutes?",[],"Book while they're warm. Never 'I'll send you a link'.","Speed to lead","inbound"],
+["i7","obj","Can you just send me the info?","Of course. What's the main thing you want to know, so I send the right bit? And I'll pencil in 15 minutes on [day] to go through it.",[],"Send something specific, and keep the next step booked.","Speed to lead","inbound"],
+["i8","obj","How much is it?","Happy to cover that. It depends on [scope], so can I ask two quick questions first?",[],"Same as a buffer: price after context.","Speed to lead","inbound"],
+["i9","close","(Not a fit) Let them go politely","Thanks for being straight with me. It doesn't sound like the right fit right now, so I won't waste your time.",[],"Disqualifying protects your calendar and your reputation.","Speed to lead","inbound"],
+["i10","vm","Voicemail (inbound)","Hi [name], Julian from Princeps. You just asked about [offer], so I'm calling while it's fresh. I'll text you too. Speak soon.",[],"Short, and tells them a text is coming.","Speed to lead","inbound"],
+
+["ma1","agenda","(Start of the meeting) Set the agenda","Thanks for making time, [name]. Here's what I suggest: I'll ask a few questions about your next intake and how enquiries work now. If it makes sense, I'll show you how the pilot works, and at the end we decide together if it's a fit. Sound good?",[],"An agreed agenda puts you in charge and makes the close expected.","Meeting","meeting"],
+["ma2","agenda","(Make it safe to say no)","And if it's not a fit, it's fine to tell me. I'd rather know.",[],"Taking the pressure off makes people more honest, and more likely to buy.","Meeting","meeting"],
+["ma3","agenda","(Small talk first)","How's the week been? Busy with the intake coming up?",[],"Thirty seconds of being human before business.","Meeting","meeting"],
+["md1","disc","(Discovery) The priority course","Which course or intake would make the biggest difference to fill right now? When does it start, and how many places are left?",[],"Straight from the Pilot Discovery Form: one course, one intake.","Pilot form","meeting"],
+["md2","disc","(Discovery) Their numbers","Roughly how many enquiries do you get for it in a typical month, and how many become enrolments?",[],"Your baseline. The pilot is measured against it.","Pilot form","meeting"],
+["md3","disc","(Discovery) What happens after an enquiry","Walk me through what happens after someone enquires. Who gets back to them, how fast, and what happens if they don't answer?",[],"Find the leak with questions. Don't diagnose yet.","Pilot form","meeting"],
+["md4","disc","(Discovery) The right learner","Who's your ideal learner for this course? And who's a time-waster?",[],"Becomes your qualification criteria.","Pilot form","meeting"],
+["md5","disc","(Discovery) What they've tried","What have you tried before to fill it, and what happened?",[],"Shows you what not to repeat, and what they fear.","Meeting","meeting"],
+["md6","disc","(Discovery) The cost of doing nothing","If those places stay empty, what does that cost you this intake?",[],"Their number, in their words, is what justifies your price.","Meeting","meeting"],
+["md7","disc","(Discovery) What success looks like","If we spoke again in a month and this had worked, what would have happened?",[],"Gives you their definition of a win to present against.","Meeting","meeting"],
+["md8","disc","(Discovery) Who decides","Apart from you, who else would be involved in deciding on something like this?",[],"Find the other decision-maker before the close, not after.","Meeting","meeting"],
+["md9","disc","(Discovery) Ad budget","Have you run ads before? Roughly what would you be comfortable spending on ads for one intake?",[],"The pilot needs a spending cap they approve.","Pilot form","meeting"],
+["mp1","present","(Present) The pilot in one breath","Here's what I'd suggest: a 14-day pilot on [course]. We agree exactly who a suitable learner is. You pay Meta directly, with a spending cap you approve. I run the ads, follow up every enquiry fast, and book the right people in with your team. We measure it against your current numbers, with reviews on day 7 and day 14.",[],"One course, their cap, their numbers. Clear and low-risk.","Pilot form","meeting"],
+["mp2","present","(Present) Tie it to what they said","You mentioned [their problem]. That's exactly what [part of the pilot] is for.",[],"People buy their own words played back, not features.","Meeting","meeting"],
+["mp3","present","(Present) What you need from them","From your side I'd need access to the ad account, about an hour for setup, and someone to take the booked calls.",[],"Being clear about their part prevents surprises later.","Pilot form","meeting"],
+["mp4","present","(Check in)","How does that sound so far?",[],"Check for agreement before you mention price.","Meeting","meeting"],
+["mp5","present","(Price) Say it plainly, then stop","The pilot is [pilot price], plus the ad spend you set, which goes straight to Meta.",[],"Say the number calmly, then stay silent. Whoever speaks first after the price loses ground.","Meeting","meeting"],
+["mo1","obj","I need to think about it","Of course. Usually that means one thing isn't sitting right. What is it for you: the price, the timing, or whether it'll work?",[],"Turns a fog into a specific objection you can answer.","Meeting","meeting"],
+["mo2","obj","It's too expensive","Compared to what? One extra enrolment on [course] is worth [course price]. How many would it take for the pilot to pay for itself?",[],"Moves the conversation from cost to return, in their numbers.","Meeting","meeting"],
+["mo3","obj","I need to speak to my partner","Makes sense. What do you think they'll ask? Shall we book 15 minutes with them this week so they can ask me directly?",[],"Don't let someone else pitch for you.","Meeting","meeting"],
+["mo4","obj","What if it doesn't work?","Fair question. That's why it's 14 days on one course, with a spending cap you control and a review on day 7. You'll know quickly, and you're not committed beyond the pilot.",[],"The pilot itself is the risk-reversal.","Pilot form","meeting"],
+["mo5","obj","You don't have any case studies","True, you'd be one of my first. That's why the pilot is priced the way it is and measured against your own numbers. You'd get a lot of my attention.",[],"Honesty turns being new into an advantage.","Meeting","meeting"],
+["mo6","obj","We've tried agencies before","What went wrong last time? … Here's what's different about how I'd do it: [answer].",[],"Their bad experience is your spec.","Meeting","meeting"],
+["mo7","obj","Now's not a good time","When does recruitment for the next intake start? If we start then, will it be too late to fill it?",[],"Ties timing to their intake, not your diary.","Meeting","meeting"],
+["mo8","obj","Can you guarantee results?","No, and I'd be wary of anyone who does. What I commit to is the work, fast follow-up and honest reporting against your numbers.",[],"Refusing to over-promise builds more trust than a guarantee.","Pilot form","meeting"],
+["mc1","close","(Ask for the decision)","Based on what you've told me, I think the pilot makes sense for [course]. Shall we go ahead?",[],"Ask plainly. Then stay quiet.","Meeting","meeting"],
+["mc2","close","(Assume the next step)","Great. The next step is a 30-minute setup where we fill in the discovery form together. Does [day] work?",[],"Make the next step concrete straight away.","Pilot form","meeting"],
+["mc3","close","(They said yes) Lock it in","Brilliant. I'll send the agreement and invoice today, and once that's done we'll book the setup call.",[],"Payment and paperwork the same day.","Meeting","meeting"],
+["mc4","close","(Not ready yet) Agree a next step","No problem. What would you need to see to feel sure? Let's book a short follow-up for [day] once you've had a think.",[],"Never end a meeting without a date in the diary.","Meeting","meeting"],
+["mn1","next","(End of meeting) Recap","So to recap: [course], a 14-day pilot, an ad cap of £[cap], setup on [day]. Did I miss anything?",[],"A recap prevents misunderstandings and confirms the yes.","Meeting","meeting"],
+["mn2","next","(After a yes) Ask who else","Who else do you know who runs courses and might want the same?",[],"The best time to ask for a referral is when they're excited.","Meeting","meeting"]
 ];
 
 const ORGS={
@@ -809,9 +870,15 @@ d1:"What happens next, and how fast?",d2:"Which course, and when does it start?"
 o1:"Full, or someone handling it?",o2:"What matters most: how, examples, cost?",o3:"Is that when recruiting starts?",o4:"No spend today. 15 mins to check fit",o5:"Depends on scope. That's the 15 mins",o6:"Do they handle follow-up too?",o7:"Do enquiries slip when it's busy?",o8:"Who else? Book it when they can join",o9:"Adding courses, or happy at this size?",o10:"Small is exactly who I work with",o11:"Fair. I'll show you before you commit",o12:"If it fits, yes. First: is there a fit?",o13:"When will things settle?",o14:"Apologies. Off my list. Next dial.",o15:"[website]. What will you look for?",o16:"What happens when referrals dip?",
 c1:"Would you be against 15 mins on [day]?",c2:"Tuesday morning or Wednesday afternoon?",c3:"Free review: 3 recommendations",c4:"Test enquiry live. 15 mins [day]?",c5:"Phone or video? Email? Agenda. Day.",c6:"Intake, enquiries, fit. Honest answer.",c7:"Headline now, specifics in 15",c8:"Pencil it in, cancel anytime. Thursday 10?",
 v1:"Name, reason, number twice",r1:"Sorry, let me say that properly.",r2:"Lost my thread. Are your intakes full?",r3:"Don't want to guess. I'll find out.",r4:"Silence. Count to three.",r5:"I've been talking. Your take?",r6:"Prin-seps. Latin for 'first'.",r7:"Ha, no. Very human.",
-x1:"South London. UK-wide. Happy to meet.",x2:"Only training providers. You get me.",x3:"Unfilled course: everyone loses.",x4:"I focus on enrolments. What outcome?",x5:"Perfect timing. What prompted it?",x6:"Name, number, can I say you sent me?",x7:"Summarise, then close.",x8:"Julian Ikeme. Princeps Digital."};
+x1:"South London. UK-wide. Happy to meet.",x2:"Only training providers. You get me.",x3:"Unfilled course: everyone loses.",x4:"I focus on enrolments. What outcome?",x5:"Perfect timing. What prompted it?",x6:"Name, number, can I say you sent me?",x7:"Summarise, then close.",x8:"Julian Ikeme. Princeps Digital.",
+b1:"Fair question.",b2:"Makes sense. What's behind that?",b3:"Let me think about that properly.",b4:"Interesting. Tell me more.",b5:"Totally fair. I'd ask the same.",b6:"What do you mean by [their word]?",b7:"Two questions first, then the right number.",b8:"What's going through your mind?",b9:"Let me back up a step.",b10:"You're right about that.",
+i1:"You just asked about [offer]. Two minutes?",i2:"You filled in our form earlier. Bad time?",i3:"Totally fine. What made you click?",i4:"What made you look into this now?",i5:"Next few weeks, or later?",i6:"Worth a proper look. [day], 15 mins?",i7:"Main thing you want to know? + pencil [day]",i8:"Two quick questions first.",i9:"Not the right fit. Won't waste your time.",i10:"Calling while it's fresh. Texting too.",
+ma1:"Questions, then the pilot, then we decide. Good?",ma2:"If it's not a fit, tell me.",ma3:"How's the week been?",md1:"Which course, when, how many places left?",md2:"Enquiries a month → how many enrol?",md3:"After an enquiry: who, how fast, then what?",md4:"Ideal learner? Time-waster?",md5:"Tried before? What happened?",md6:"Empty places cost you what?",md7:"A month from now, what's happened?",md8:"Who else decides?",md9:"Run ads before? Comfortable spend?",
+mp1:"14 days, one course, your cap, your numbers.",mp2:"You said [X]. That's what [Y] fixes.",mp3:"Ad account, an hour, someone on calls.",mp4:"How does that sound so far?",mp5:"[pilot price] + your ad spend. Then silence.",
+mo1:"Price, timing, or whether it'll work?",mo2:"How many enrolments to pay for itself?",mo3:"What will they ask? Book them in.",mo4:"14 days, your cap, day-7 review.",mo5:"One of my first. Priced for it.",mo6:"What went wrong last time?",mo7:"When does recruitment start?",mo8:"No. I commit to the work and honest numbers.",
+mc1:"Pilot makes sense. Shall we go ahead?",mc2:"Setup call, discovery form. [day]?",mc3:"Agreement and invoice today.",mc4:"What would you need to see? Book [day].",mn1:"Recap: course, 14 days, £[cap], setup [day].",mn2:"Who else runs courses?"};
 /* Phrases that trigger each response in Listen mode */
-const KW={gk1:["who's calling","who is calling","who's speaking","can i ask who","who shall i say"],gk2:["regarding","what's it about","what is it about","what's it in relation to","in relation to"],gk4:["not available","not in today","in a meeting","in a class","teaching at the moment","out of the office","not here"],gk5:["take a message","leave a message","pass it on","pass on a message"],gk7:["don't take sales","no sales calls","we don't accept"],
+const KW={mo1:["think about it","let me think","mull it over","have a think"],mo2:["expensive","too much","afford","pricey"],mo3:["my partner","business partner","my director","speak to my","run it by"],mo4:["doesn't work","what if it","won't work"],mo5:["case studies","other clients","proof"],mo6:["tried agencies","agency before","last agency","previous agency"],mo7:["not a good time","not the right time","bad timing"],mo8:["guarantee"],i2:["don't remember","what form","who is this"],i3:["browsing","just looking","having a look"],i7:["send me the info","send me info","email me","send me something"],i8:["how much","price","cost"],gk1:["who's calling","who is calling","who's speaking","can i ask who","who shall i say"],gk2:["regarding","what's it about","what is it about","what's it in relation to","in relation to"],gk4:["not available","not in today","in a meeting","in a class","teaching at the moment","out of the office","not here"],gk5:["take a message","leave a message","pass it on","pass on a message"],gk7:["don't take sales","no sales calls","we don't accept"],
 op2:["who is this","who's this","what's this about","what is this about"],op3:["get my number","got my number","where did you get"],op4:["busy","driving","bad time","in the middle of","can't talk","about to start","quick one"],op5:["sales call","are you selling"],op6:["we're full","we are full","fully booked","sold out","no spaces","all booked"],op7:["still got spaces","have spaces","few spaces","places left","still looking","some spaces","got availability"],op8:["doing fine","doing well","always busy","we're good","we're okay","we're alright"],op9:["do i know you","have we spoken","have we met"],
 p1:["what do you do","what is it you do","what exactly","what's princeps"],p2:["how does it work","how does that work","how would that work","how do you do that"],p3:["facebook","ads","instagram ads","meta","google ads"],p4:["ai","chatbot","automated","automation"],p5:["results","case studies","case study","who else","examples","worked with","clients have you"],p6:["guarantee","guaranteed","promise"],p8:["tell me more","go on","sounds interesting","interested in"],
 d1:["don't convert","don't enrol","not converting","don't sign up","no shows","ghost","drop off","go quiet"],d2:["not enough enquiries","not enough leads","not many enquiries","quiet at the moment","struggling to fill"],d3:["word of mouth","referrals","recommendations"],d6:["agency before","bad experience","got burned","waste of money","used an agency"],d7:["tried ads","tried facebook","didn't work","tried marketing","done ads"],
@@ -819,7 +886,7 @@ o1:["not interested","no thanks","no thank you"],o2:["send me an email","send an
 c5:["that works","sounds good","let's do it","go on then","book it in","yeah okay"],c6:["what will we cover","what's the call about","what would we talk about","what's the meeting"],c7:["tell me now","just tell me","over the phone"],c8:["maybe","think about it","not sure","let me think"],
 r6:["prince","princess","what digital","say that again"],r7:["are you a robot","are you real","is this ai","is this a recording"],
 x1:["where are you based","where are you from","whereabouts are you"],x2:["how long have you","how long you been"],x3:["why training"],x4:["website","seo","social media"],x5:["looking for marketing","been looking for","need marketing","perfect timing"],x6:["my colleague","speak to my colleague","call my"],x8:["your name again","what's your name","what was your name"]};
-const GLANCE=["op1","op6","op7","op4","p1","p2","d1","o1","o2","o3","o5","o6","p5","c1","c8","r1"];
+const GLANCES={cold:["op1","op6","op7","op4","p1","p2","d1","o1","o2","o3","o5","o6","p5","c1","c8","r1"],inbound:["i1","i2","i3","i4","i5","i6","i7","i8","i9","i10"],meeting:["ma1","md1","md2","md3","md6","md7","md8","mp1","mp4","mp5","mo1","mo2","mo3","mo4","mo5","mc1","mc2","mn1"]};
 
 /* ============ RANKS ============ */
 // gate(m) returns null when met, else a sentence describing what's still needed
@@ -866,7 +933,12 @@ function save(){
   db.doc("data/users/"+uid+"/coach").onSnapshot(s=>{const d=s.exists?s.data():null;COACH=d&&Array.isArray(d.evals)?JSON.parse(JSON.stringify(d.evals)):[];renderGame(false);if(!$("#v-rank").hidden)renderRank()},()=>{});
 }catch(e){}})();
 
-const all=()=>BASE.map(a=>({id:a[0],stage:a[1],trig:a[2],say:a[3],alts:a[4],why:a[5],src:a[6],cue:CUES[a[0]]})).concat(S.custom||[]);
+const all=()=>BASE.map(a=>({id:a[0],stage:a[1],trig:a[2],say:a[3],alts:a[4],why:a[5],src:a[6],ct:a[7]||"cold",cue:CUES[a[0]]})).concat((S.custom||[]).map(c=>Object.assign({ct:"all"},c)));
+const curCt=()=>S.ctx.ct||"cold";
+const ctOk=(e,ct)=>e.ct===(ct||curCt())||e.ct==="all";
+function stagesFor(ct){return Object.keys(STAGES).filter(k=>k!=="buf"&&all().some(e=>e.stage===k&&ctOk(e,ct)))}
+const FIRST={cold:"op1",inbound:"i1",meeting:"ma1"};
+const START={cold:"op",inbound:"op",meeting:"agenda"};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function fill(t){const c=S.ctx||{};return t.replace(/\[(first name|name)\]/gi,c.name||"[name]").replace(/\[course\]/gi,c.course||"[course]").replace(/\[area\]/gi,c.area||"[area]").replace(/\[day\]/gi,c.day||"[day]")}
@@ -886,12 +958,13 @@ addEventListener("hashchange",route);
 let liveStage="op",liveSel=null,liveQuery="";
 function orgOptions(sel){sel.innerHTML=Object.entries(ORGS).map(([k,o])=>`<option value="${k}">${esc(o.label)}</option>`).join("")}
 function renderLive(){
-  $("#live-stages").innerHTML=LIVE_STAGES.map(s=>`<button class="stage" data-stage="${s}" aria-pressed="${s===liveStage&&!liveQuery}">${STAGES[s]}</button>`).join("");
+  $("#live-stages").innerHTML=stagesFor(curCt()).map(s=>`<button class="stage" data-stage="${s}" aria-pressed="${s===liveStage&&!liveQuery}">${STAGES[s]}</button>`).join("");
   let list=all();
   if(liveQuery){const q=liveQuery.toLowerCase().split(/\s+/).filter(Boolean);list=list.filter(e=>q.every(w=>(e.trig+" "+e.say+" "+e.src).toLowerCase().includes(w)))}
-  else list=list.filter(e=>e.stage===liveStage);
+  else list=list.filter(e=>e.stage===liveStage&&ctOk(e));
   $("#triggers").innerHTML=list.length?list.map((e,i)=>`<button class="trigbtn${liveSel===e.id?" on":""}" data-id="${e.id}"><span class="k">${i<9?i+1:""}</span><span>${esc(e.trig)}${liveQuery?` <span class="chip">${STAGES[e.stage]}</span>`:""}</span></button>`).join(""):`<p class="muted small">Nothing matches. Use a recovery line: "Good question, let me find out properly."</p>`;
-  const e=all().find(x=>x.id===liveSel)||all().find(x=>x.id==="op1");
+  const e=all().find(x=>x.id===liveSel)||all().find(x=>x.id===FIRST[curCt()]);
+  $("#buffers").innerHTML=all().filter(x=>x.stage==="buf").slice(0,10).map(x=>`<span>${esc(fill(x.cue||x.say))}</span>`).join("");
   applyMode();
   $("#say").innerHTML=`<div class="trig">When they say: <b>${esc(e.trig)}</b></div>${e.cue?`<div class="cue">${esc(fill(e.cue))}</div>`:""}<div class="line"${e.cue?' style="font-size:17px;font-weight:500;font-family:var(--body)"':""}>${hl(e.say)}</div>
    ${e.alts&&e.alts.length?`<div class="alts">${e.alts.map(a=>`<div class="alt"><b>Or</b>${hl(a)}</div>`).join("")}</div>`:""}
@@ -910,7 +983,7 @@ function applyMode(){const m=S.ctx.mode||"glance";
   $("#mode-help").textContent=MODE_HELP[m];
   $("#glance").hidden=m!=="glance";$("#live-grid").hidden=m==="glance";$("#live-stages").hidden=m!=="tap";
   $("#tap-side").hidden=m!=="tap";$("#listen-side").hidden=m!=="listen";
-  if(m==="glance")$("#glance").innerHTML=GLANCE.map(id=>{const e=all().find(x=>x.id===id);return `<button class="gcard" data-gid="${id}"><div class="t">${esc(e.trig)}</div><div class="c">${esc(fill(e.cue||e.say))}</div></button>`}).join("");}
+  if(m==="glance")$("#glance").innerHTML=GLANCES[curCt()].map(id=>{const e=all().find(x=>x.id===id);return `<button class="gcard" data-gid="${id}"><div class="t">${esc(e.trig)}</div><div class="c">${esc(fill(e.cue||e.say))}</div></button>`}).join("");}
 document.querySelector("#v-live .modes").addEventListener("click",ev=>{const b=ev.target.closest("[data-mode]");if(!b)return;S.ctx.mode=b.dataset.mode;save();if(b.dataset.mode!=="listen"&&dict&&dictOwner==="live")dict.stop().catch(()=>{});renderLive()});
 $("#glance").addEventListener("click",ev=>{const b=ev.target.closest("[data-gid]");if(!b)return;liveSel=b.dataset.gid;liveStage=all().find(x=>x.id===liveSel).stage;S.ctx.mode="tap";renderLive()});
 
@@ -918,7 +991,7 @@ $("#glance").addEventListener("click",ev=>{const b=ev.target.closest("[data-gid]
 const KWRX=Object.fromEntries(Object.entries(KW).map(([id,arr])=>[id,arr.map(p=>({w:p.split(" ").length,rx:new RegExp("(^|[^a-z'])"+p.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"($|[^a-z'])","i")}))]));
 let heardBuf="",lastMatch=null;
 function matchHeard(text){const tail=text.split(/\s+/).slice(-18).join(" ").toLowerCase();
-  const scored=Object.entries(KWRX).map(([id,ps])=>[id,ps.reduce((s,p)=>s+(p.rx.test(tail)?p.w:0),0)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+  const scored=Object.entries(KWRX).filter(([id])=>{const e=all().find(x=>x.id===id);return e&&ctOk(e)}).map(([id,ps])=>[id,ps.reduce((s,p)=>s+(p.rx.test(tail)?p.w:0),0)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
   if(!scored.length)return;
   if(scored[0][0]!==lastMatch){lastMatch=scored[0][0];liveSel=lastMatch;renderLive()}
   $("#listen-alts").innerHTML=scored.slice(1,5).map(([id])=>{const e=all().find(x=>x.id===id);return `<button class="trigbtn" data-id="${id}"><span>${esc(e.trig)}</span></button>`}).join("")||`<p class="small muted">None</p>`;}
@@ -936,17 +1009,17 @@ $("#outcomes").addEventListener("click",ev=>{const b=ev.target.closest("[data-ou
   $("#nerves").hidden=["noanswer","vm"].includes(b.dataset.out);
   const n=S.log.filter(x=>x.d===today()).length;
   toast(b.dataset.out==="meeting"?`Meeting booked. Dial ${n} today.`:b.dataset.out==="no"?`That's one more no collected. Dial ${n}.`:`Logged. Dial ${n} of ${S.target}.`);
-  liveSel=null;liveStage="op";liveQuery="";lastMatch=null;$("#live-search").value="";renderLive();renderGame(true);});
+  liveSel=null;liveStage=START[curCt()];liveQuery="";lastMatch=null;$("#live-search").value="";renderLive();renderGame(true);});
 $("#nerves").addEventListener("click",ev=>{const b=ev.target.closest("[data-nv]");if(!b)return;const last=S.log[S.log.length-1];if(last){last.nv=+b.dataset.nv;save()}$("#nerves").hidden=true;toast("Noted. Watch this number fall over the weeks.");renderGame(true)});
 $("#live-stages").addEventListener("click",ev=>{const b=ev.target.closest("[data-stage]");if(!b)return;liveStage=b.dataset.stage;liveQuery="";$("#live-search").value="";
-  const first=all().find(e=>e.stage===liveStage);liveSel=first?first.id:null;renderLive()});
+  const first=all().find(e=>e.stage===liveStage&&ctOk(e));liveSel=first?first.id:null;renderLive()});
 $("#triggers").addEventListener("click",ev=>{const b=ev.target.closest("[data-id]");if(!b)return;liveSel=b.dataset.id;renderLive();if(innerWidth<820)$("#say").scrollIntoView({behavior:"smooth",block:"start"})});
 $("#live-search").addEventListener("input",e=>{liveQuery=e.target.value.trim();renderLive()});
 ["name","course","area","day"].forEach(k=>{const el=$("#cx-"+k);el.addEventListener("input",()=>{S.ctx[k]=el.value;save();renderLive()})});
-orgOptions($("#cx-org"));$("#cx-org").addEventListener("change",e=>{S.ctx.org=e.target.value;save();renderLive()});
+orgOptions($("#cx-org"));$("#cx-ct").addEventListener("change",e=>{S.ctx.ct=e.target.value;save();liveStage=START[curCt()];liveSel=FIRST[curCt()];liveQuery="";lastMatch=null;renderLive()});$("#cx-org").addEventListener("change",e=>{S.ctx.org=e.target.value;save();renderLive()});
 addEventListener("keydown",e=>{
   if($("#v-live").hidden)return;const tag=(e.target.tagName||"").toLowerCase();
-  if(e.key==="Escape"){liveStage="op";liveSel=null;liveQuery="";$("#live-search").value="";$("#live-search").blur();renderLive();return}
+  if(e.key==="Escape"){liveStage=START[curCt()];liveSel=null;liveQuery="";$("#live-search").value="";$("#live-search").blur();renderLive();return}
   if(tag==="input"||tag==="textarea"||tag==="select")return;
   if(e.key==="/"){e.preventDefault();$("#live-search").focus();return}
   if(/^[1-9]$/.test(e.key)&&(S.ctx.mode||"glance")==="tap"){const b=document.querySelectorAll("#triggers .trigbtn")[+e.key-1];if(b)b.click()}
@@ -954,7 +1027,7 @@ addEventListener("keydown",e=>{
 
 /* ============ DRILL (Leitner) ============ */
 const IV=[0,1,3,7,16,35];let drillCur=null,drillPhase="q",drillTimer=null,drillSaid="";
-function deckCards(){const d=$("#drill-deck").value||"all";return all().filter(e=>d==="all"||e.stage===d)}
+function deckCards(){const d=$("#drill-deck").value||"all";return all().filter(e=>d==="all"||(d.startsWith("ct:")?ctOk(e,d.slice(3)):e.stage===d))}
 function dueCards(){const t=Date.now();const cards=deckCards();
   const due=cards.filter(c=>S.srs[c.id]&&S.srs[c.id].due<=t);
   const introducedToday=Object.values(S.srs).filter(r=>r.intro===today()).length;
@@ -985,7 +1058,7 @@ $("#drill-card").addEventListener("click",ev=>{const t=ev.target;
   else if(t.dataset.rate!==undefined){const r=S.srs[drillCur.id]||{box:0,intro:today()};const g=+t.dataset.rate;
     r.box=g===0?0:g===1?Math.max(1,r.box):Math.min(5,r.box+1);r.due=Date.now()+IV[r.box]*864e5-36e5;if(g===0)r.due=Date.now()+6e4;
     S.srs[drillCur.id]=r;S.rev=S.rev||{n:0,nailed:0};S.rev.n++;if(g===2)S.rev.nailed++;S.revDays=S.revDays||{};S.revDays[today()]=(S.revDays[today()]||0)+1;save();drillNext();renderGame(true)}});
-$("#drill-deck").innerHTML=`<option value="all">Everything</option>`+Object.entries(STAGES).map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
+$("#drill-deck").innerHTML=`<option value="all">Everything</option>`+Object.entries(CALLTYPES).map(([k,v])=>`<option value="ct:${k}">All ${v.toLowerCase()} lines</option>`).join("")+Object.entries(STAGES).map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
 $("#drill-deck").addEventListener("change",()=>setGame(gMode));$("#drill-rapid").addEventListener("change",drillNext);
 $("#drill-listen").addEventListener("click",async()=>{const t=await tts();if(!t){toast("Audio isn't available in this view");return}
   const lines=[];deckCards().slice(0,30).forEach(c=>{lines.push({text:"They say: "+c.trig.replace(/[()]/g,""),voice:"airy"});lines.push({text:fill(c.say).replace(/\[[^\]]+\]/g,"…"),voice:"buttery"})});
@@ -1022,7 +1095,10 @@ function personaPrompt(){
   if(mood==="random")mood=["busy","sceptical","friendly","hostile","interested"][Math.floor(Math.random()*5)];
   const pf=P();const diff=["","Go easy: give the caller openings, and agree to a meeting if he asks clearly.","Be realistic: raise one or two genuine objections, and only agree to a meeting if he handles them and asks for a specific time.","Be tough: interrupt, raise several objections, test whether he can explain clearly, and hang up if he rambles for more than about three sentences or sounds scripted and pushy."][+$("#sp-diff").value];
   const gk=$("#sp-role").value==="gatekeeper"?"The call is first answered by a receptionist, who screens it. Only put ${pf.name} through to the decision-maker if he's polite, clear and gives a reason. Once through, play the owner.":"The owner answers directly.";
-  return `You are role-playing a prospect on a COLD CALL so a salesperson can practise. Stay in character at all times.
+  const ct=$("#sp-ct").value;
+  const scene=ct==="inbound"?`This is an INBOUND lead call: a few minutes ago you filled in a form on an ad from ${pf.biz} (about: ${pf.offer}). You're curious but distracted and half-forgot about it. Agree to a meeting only if they're quick, relevant and ask good questions.`:ct==="meeting"?`This is a booked SALES MEETING you agreed to with ${pf.name} from ${pf.biz}. You have real needs and real doubts: price, time, trust, and whether it will work for you. You can be won over if they set an agenda, ask good questions, connect the offer to what you said, handle objections honestly and ask for the decision. If they pitch too early or ramble, get cooler. If you agree to buy or to a firm paid next step, end with [DEAL AGREED].`:"This is a COLD CALL: you weren't expecting it.";
+  return `You are role-playing a prospect so a salesperson can practise. Stay in character at all times.
+${scene}
 Who you are: invent a realistic first name and business name. ${o?`You run a UK ${o.label}. Your learners: ${o.learner}.`:`You are a decision-maker at a business that matches this description: ${pf.icp}`}
 Mood: ${mood}. ${diff}
 ${gk}
@@ -1033,12 +1109,12 @@ Rules: reply ONLY with your spoken words, in natural British spoken English, usu
 async function prospectTurn(){
   const bubble=addMsg("them","…");sparCtl=new AbortController();
   try{
-    const input=[{role:"user",content:sparPersona+"\n\nThe phone is ringing. Answer it."}].concat(sparTurns);
+    const input=[{role:"user",content:sparPersona+($("#sp-ct").value==="meeting"?"\n\nThe meeting is starting. Say hello.":"\n\nThe phone is ringing. Answer it.")}].concat(sparTurns);
     if(sparTurns.length===0)input.length=1;
     const {text}=await sample(input,{modelTier:"quick",cache:false,signal:sparCtl.signal,onText:({text})=>{bubble.textContent=text}});
     bubble.textContent=text;sparTurns.push({role:"assistant",content:text});
     if($("#sp-voice").checked)speak(text.replace(/\[[A-Z ]+\]/g,""),"rounded");
-    if(/\[HANGS UP\]|\[MEETING BOOKED\]/.test(text)){addMsg("sys",/BOOKED/.test(text)?"Meeting booked":"They hung up");endCall()}
+    if(/\[HANGS UP\]|\[MEETING BOOKED\]|\[DEAL AGREED\]/.test(text)){addMsg("sys",/AGREED/.test(text)?"Deal agreed":/BOOKED/.test(text)?"Meeting booked":"They hung up");endCall()}
   }catch(e){bubble.textContent=e.code==="not_granted"?"Claude wasn't allowed for this page, so sparring is off.":e.code==="rate_limited"?"Too many calls at once. Wait a minute and try again.":e.code==="cancelled"?"(call ended)":"Something went wrong reaching Claude. Try again.";}
 }
 $("#sp-start").addEventListener("click",()=>{if(!sample)return;
@@ -1061,15 +1137,16 @@ async function endCall(){if(!sparOn)return;sparOn=false;sparCtl&&sparCtl.abort()
   try{
     const r=await sample.json(`You are an elite cold-calling coach for ${P().name}, who is building their cold-calling skill and confidence. Their business: ${profileText()}${lessonsText()}
 Be direct and specific, and encourage them without flattering.
+Call type: ${CALLTYPES[$("#sp-ct").value]}. For a sales meeting, read "opener" as agenda-setting and rapport, and "close" as asking for the decision.
 Score this practice call. Reply with only JSON:
-{"overall":0-10,"scores":{"opener":0-10,"clarity":0-10,"questions":0-10,"objections":0-10,"close":0-10,"brevity":0-10,"confidence":0-10},"outcome":"short phrase","best_moment":"quote + why","fixes":[{"moment":"what the prospect said","you_said":"his words","try":"a better line in his voice, UK English"}],"habit":"one thing to practise next call","new_cards":[{"stage":"gk|op|pitch|disc|obj|close|rec|curve","trig":"what the prospect said","say":"ideal response","why":"short principle"}]}
+{"overall":0-10,"scores":{"opener":0-10,"clarity":0-10,"questions":0-10,"objections":0-10,"close":0-10,"brevity":0-10,"confidence":0-10},"outcome":"short phrase","best_moment":"quote + why","fixes":[{"moment":"what the prospect said","you_said":"his words","try":"a better line in his voice, UK English"}],"habit":"one thing to practise next call","new_cards":[{"stage":"buf|gk|agenda|op|pitch|disc|present|obj|close|next|rec|curve","trig":"what the prospect said","say":"ideal response","why":"short principle"}]}
 Give 2-4 fixes and 1-3 new_cards, for situations from this call that his library may not cover.
 Scoring "confidence" from words only: penalise hedging (just, sort of, maybe, I think, sorry, if that's okay), apologising for calling, rambling, and asking permission repeatedly; reward short assertive statements, a direct ask for a specific time, calm recovery after a no, and holding his ground politely. Score 10s rarely. A 10 means elite professional level.
 
 TRANSCRIPT:
 ${transcript.slice(-12000)}`);
     const sc=r.scores||{};
-    const booked=/MEETING BOOKED/.test(transcript);
+    const booked=/MEETING BOOKED|DEAL AGREED/.test(transcript);
     S.spars=S.spars||[];S.spars.push({t:Date.now(),d:today(),diff:+$("#sp-diff").value,overall:+r.overall||0,scores:sc,booked});save();renderGame(true);
     out.innerHTML=`<h3 style="margin-top:16px;font-size:22px">${esc(r.overall)}/10 · ${esc(r.outcome||"")}</h3>
      <div class="score">${Object.entries(sc).map(([k,v])=>`<div><strong>${esc(v)}</strong><span class="small muted">${esc(k)}</span></div>`).join("")}</div>
@@ -1363,6 +1440,6 @@ ${LEARN_SCHEMA}`,{modelTier:"default"});
   b.disabled=false});
 
 /* ============ BOOT ============ */
-function renderAll(){["name","course","area","day"].forEach(k=>$("#cx-"+k).value=S.ctx[k]||"");$("#cx-org").value=S.ctx.org||"beauty";$("#target").value=S.target;renderLive();renderGame(false);route()}
+function renderAll(){liveStage=START[curCt()];["name","course","area","day"].forEach(k=>$("#cx-"+k).value=S.ctx[k]||"");$("#cx-org").value=S.ctx.org||"beauty";$("#cx-ct").value=curCt();$("#target").value=S.target;renderLive();renderGame(false);route()}
 renderAll();
 </script>
