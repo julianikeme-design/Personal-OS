@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { IconArrowRight, IconLock, IconShield } from "@/components/icons";
 import { AdventureEditor, BudgetEditor, DietaryEditor, SpiceEditor, TastesEditor } from "@/components/PreferenceEditors";
@@ -15,6 +16,8 @@ export default function ProfilePage() {
   const [prefs] = usePreferences();
   const [journal] = useJournal();
   const [open, setOpen] = useState<Section>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
+  const router = useRouter();
   const [status, setStatus] = useState<{ ai: boolean; model: string | null } | null>(null);
 
   useEffect(() => {
@@ -66,18 +69,25 @@ export default function ProfilePage() {
             stored there. We record anonymous usage events (e.g. &ldquo;recommendations generated&rdquo;) and feedback answers to learn
             whether Dishwise is useful. These never include your name, notes or photos.
           </p>
-          <Button
-            variant="secondary"
-            className="mt-1 justify-self-start"
-            onClick={() => {
-              if (confirm("Delete your preferences, current menu and journal from this device? This can't be undone.")) {
-                clearAllLocalData();
-                window.location.href = "/";
-              }
-            }}
-          >
-            Delete my data from this device
-          </Button>
+          {confirmClear ? (
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <span className="w-full text-sm font-medium">Delete your preferences, current menu and journal? This can&apos;t be undone.</span>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  clearAllLocalData();
+                  router.push("/");
+                }}
+              >
+                Yes, delete everything
+              </Button>
+              <Button variant="ghost" onClick={() => setConfirmClear(false)}>Cancel</Button>
+            </div>
+          ) : (
+            <Button variant="secondary" className="mt-1 justify-self-start" onClick={() => setConfirmClear(true)}>
+              Delete my data from this device
+            </Button>
+          )}
         </Card>
       </section>
 

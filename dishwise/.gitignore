@@ -43,3 +43,6 @@ next-env.d.ts
 # local analytics store
 /.data
 !.env.example
+
+# preview build output
+/preview/dist

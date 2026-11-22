@@ -6,7 +6,7 @@ import type { Metrics } from "@/lib/analytics/metrics";
 
 interface Payload {
   metrics: Metrics;
-  store: "supabase" | "file";
+  store: "supabase" | "file" | "device";
   storeEphemeral: boolean;
   generatedAt: string;
 }
@@ -107,6 +107,9 @@ export default function FounderPage() {
         <Notice tone="warn" className="mb-5">
           Events are stored in temporary server storage and will be lost. Connect Supabase (see README) before your real test.
         </Notice>
+      )}
+      {data.store === "device" && (
+        <Notice className="mb-5">Preview mode: this shows only the activity in this browser. The deployed app collects every tester&apos;s results in one place.</Notice>
       )}
       {data.store === "file" && !data.storeEphemeral && (
         <Notice className="mb-5">Events are stored in a local file (<code>.data/events.ndjson</code>). Fine for local testing.</Notice>

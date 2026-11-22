@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import { DishPlaceholder } from "@/components/DishPlaceholder";
 import { IconPlus, IconShare, IconStar, IconTrash } from "@/components/icons";
 import { Button, ButtonLink, Card, Chip, cx, Notice, PageTitle, PICK_META } from "@/components/ui";
-import { track } from "@/lib/client/analytics";
+import { isPreview, track } from "@/lib/client/analytics";
 import { renderShareCard, type CardOptions } from "@/lib/client/shareCard";
 import { KEYS, useHydrated, useJournal, write } from "@/lib/client/store";
 import type { JournalEntry } from "@/lib/types";
@@ -23,6 +23,7 @@ function JournalPage() {
   const params = useSearchParams();
   const saved = params.get("saved");
   const [sharing, setSharing] = useState<JournalEntry | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   if (!hydrated) return null;
 
@@ -81,15 +82,26 @@ function JournalPage() {
                   <button onClick={() => setSharing(j)} className="flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium hover:bg-surface-2">
                     <IconShare size={16} /> Share card
                   </button>
-                  <button
-                    onClick={() => {
-                      if (confirm(`Delete “${j.dishName}” from your journal?`)) write(KEYS.journal, journal.filter((x) => x.id !== j.id));
-                    }}
-                    className="flex items-center justify-center px-4 text-faint hover:text-danger"
-                    aria-label={`Delete ${j.dishName}`}
-                  >
-                    <IconTrash size={16} />
-                  </button>
+                  {confirmDelete === j.id ? (
+                    <button
+                      onClick={() => {
+                        write(KEYS.journal, journal.filter((x) => x.id !== j.id));
+                        setConfirmDelete(null);
+                      }}
+                      onBlur={() => setConfirmDelete(null)}
+                      className="flex items-center justify-center gap-1.5 px-4 text-sm font-medium text-danger"
+                    >
+                      <IconTrash size={16} /> Tap to delete
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDelete(j.id)}
+                      className="flex items-center justify-center px-4 text-faint hover:text-danger"
+                      aria-label={`Delete ${j.dishName}`}
+                    >
+                      <IconTrash size={16} />
+                    </button>
+                  )}
                 </div>
               </Card>
             </li>
@@ -106,6 +118,7 @@ function ShareSheet({ entry, onClose }: { entry: JournalEntry; onClose: () => vo
   const [opts, setOpts] = useState<CardOptions>({ format: "story", showRestaurant: true, showRating: true, showPhoto: Boolean(entry.photo) });
   const [preview, setPreview] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [saveHint, setSaveHint] = useState(false);
 
   async function make(action: "preview" | "share") {
     setBusy(true);
@@ -118,6 +131,13 @@ function ShareSheet({ entry, onClose }: { entry: JournalEntry; onClose: () => vo
       return;
     }
     track("share_card_created", { format: opts.format, photo: opts.showPhoto });
+    if (isPreview()) {
+      // The preview frame blocks downloads and the share sheet: show the image to long-press instead.
+      if (preview) URL.revokeObjectURL(preview);
+      setPreview(URL.createObjectURL(blob));
+      setSaveHint(true);
+      return;
+    }
     const file = new File([blob], `dishwise-${entry.dishName.replace(/\W+/g, "-").toLowerCase()}.png`, { type: "image/png" });
     if (navigator.canShare?.({ files: [file] })) {
       try {
@@ -155,6 +175,7 @@ function ShareSheet({ entry, onClose }: { entry: JournalEntry; onClose: () => vo
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="Share card preview" className={cx("mx-auto mt-4 rounded-2xl border border-line", opts.format === "story" ? "max-h-[45dvh]" : "max-h-[40dvh]")} />
         )}
+        {saveHint && <p className="mt-3 text-center text-sm text-muted">Press and hold the image to save or share it.</p>}
         <div className="mt-5 flex gap-2">
           <Button variant="secondary" className="flex-1" onClick={() => make("preview")} disabled={busy}>Preview</Button>
           <Button className="flex-1" onClick={() => make("share")} disabled={busy}>
